@@ -8,44 +8,66 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: radial-gradient(circle, #1a0000 0%, #000 70%);
+            background: radial-gradient(circle at center, #2b0000 0%, #000000 70%);
             color: white;
             text-align: center;
         }
 
         header {
-            padding: 20px;
-            font-size: 28px;
+            padding: 25px;
+            font-size: 32px;
             font-weight: bold;
             color: red;
-            letter-spacing: 5px;
-            box-shadow: 0 0 20px red;
+            letter-spacing: 6px;
+            box-shadow: 0 0 25px red;
         }
 
-        .player {
+        .container {
             margin-top: 80px;
-            padding: 30px;
+        }
+
+        .cover {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, red, black);
+            margin: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 40px red;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
         }
 
         audio {
             width: 80%;
-            margin-top: 20px;
-        }
-
-        .song-list {
             margin-top: 30px;
         }
 
-        .song {
-            cursor: pointer;
-            margin: 10px;
-            padding: 10px;
+        .btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: red;
+            border: none;
             border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
             transition: 0.3s;
         }
 
-        .song:hover {
-            background: red;
+        .btn:hover {
+            background: darkred;
+            transform: scale(1.05);
+        }
+
+        footer {
+            margin-top: 60px;
+            padding: 20px;
+            background: black;
+            color: gray;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -56,31 +78,28 @@
     🎵 BHENZFLIX MUSIC
 </header>
 
-<div class="player">
-    <h2>Now Playing</h2>
+<div class="container">
+
+    <div class="cover">
+        NOW PLAYING
+    </div>
+
+    <h2>SIGE LANG KAPATID</h2>
 
     <audio id="audioPlayer" controls>
-        <source src="song1.mp3" type="audio/mpeg">
+        <source src="song.mp3" type="audio/mpeg">
         Your browser does not support audio.
     </audio>
 
-    <div class="song-list">
-        <h3>Playlist</h3>
+    <br>
+    <button class="btn" onclick="document.getElementById('audioPlayer').play()">▶ Play</button>
+    <button class="btn" onclick="document.getElementById('audioPlayer').pause()">⏸ Pause</button>
 
-        <div class="song" onclick="playSong('song1.mp3')">🎶 Song 1</div>
-        <div class="song" onclick="playSong('song2.mp3')">🎶 Song 2</div>
-        <div class="song" onclick="playSong('song3.mp3')">🎶 Song 3</div>
-
-    </div>
 </div>
 
-<script>
-function playSong(song) {
-    var player = document.getElementById("audioPlayer");
-    player.src = song;
-    player.play();
-}
-</script>
+<footer>
+    © 2026 BhenzFlix Music Player
+</footer>
 
 </body>
 </html>
