@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>BhenzFlix Music</title>
+<title>BhenzFlix DJ Mode</title>
 
 <style>
 body{
@@ -11,7 +11,6 @@ font-family:Arial;
 background:radial-gradient(circle,#300000,black);
 color:white;
 text-align:center;
-overflow-x:hidden;
 }
 
 .topbar{
@@ -22,7 +21,7 @@ color:red;
 text-shadow:0 0 20px red;
 }
 
-/* ALBUM + RING */
+/* ALBUM */
 
 .album-wrapper{
 position:relative;
@@ -36,11 +35,6 @@ position:absolute;
 width:260px;
 height:260px;
 animation:spin 12s linear infinite;
-}
-
-.rotating-ring svg{
-width:100%;
-height:100%;
 }
 
 .album{
@@ -83,65 +77,48 @@ cursor:pointer;
 background:red;
 }
 
-#progress{
-width:85%;
-margin:10px auto;
-display:block;
+/* EQ */
+
+.eq-container{
+width:90%;
+margin:20px auto;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:10px;
 }
 
-.time{
+.eq{
+display:flex;
+flex-direction:column;
+align-items:center;
 font-size:12px;
-opacity:0.8;
 }
+
+.eq input{
+writing-mode:bt-lr;
+-webkit-appearance:slider-vertical;
+height:120px;
+}
+
+/* VISUALIZER */
 
 canvas{
 width:100%;
 height:140px;
-margin-top:15px;
+margin-top:20px;
 }
-
-/* SEARCH */
-
-.search-box{
-width:85%;
-padding:10px;
-margin:15px auto;
-display:block;
-border:none;
-border-radius:20px;
-background:rgba(255,255,255,0.1);
-color:white;
-}
-
-#toggleBtn{
-background:rgba(255,0,0,0.2);
-border:none;
-color:white;
-padding:8px 20px;
-border-radius:20px;
-margin-top:10px;
-cursor:pointer;
-}
-
-.hidden{display:none;}
 
 .playlist{
 width:90%;
 margin:auto;
-max-height:300px;
+max-height:200px;
 overflow-y:auto;
 }
-
 .song{
-padding:8px;
+padding:6px;
 border-bottom:1px solid #222;
 cursor:pointer;
 }
-
-.song:hover{
-background:#111;
-}
-
 .song.active{
 color:#00ffcc;
 }
@@ -150,20 +127,16 @@ color:#00ffcc;
 
 <body>
 
-<div class="topbar">🎵 BHENZFLIX MUSIC</div>
+<div class="topbar">🎧 BHENZFLIX DJ MODE</div>
 
 <div class="album-wrapper">
-
 <div class="rotating-ring">
 <svg viewBox="0 0 260 260">
 <defs>
 <path id="circlePath"
-d="M130,130
-m-115,0
-a115,115 0 1,1 230,0
-a115,115 0 1,1 -230,0"/>
+d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 </defs>
-<text fill="red" font-size="15" letter-spacing="3">
+<text fill="red" font-size="14" letter-spacing="3">
 <textPath href="#circlePath">
 • POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
 </textPath>
@@ -174,32 +147,49 @@ a115,115 0 1,1 -230,0"/>
 <div class="album">
 <img id="cover" src="https://picsum.photos/400/400?random=1">
 </div>
-
 </div>
 
 <div id="title">Loading...</div>
-
-<input type="range" id="progress" value="0">
-
-<div class="time">
-<span id="currentTime">00:00</span> /
-<span id="duration">00:00</span>
-</div>
 
 <div class="controls">
 <button onclick="prevSong()">⏮</button>
 <button id="playBtn" onclick="togglePlay()">▶</button>
 <button onclick="nextSong()">⏭</button>
-<button onclick="toggleBass()">🔊 Bass</button>
+</div>
+
+<!-- 5 BAND EQ -->
+<div class="eq-container">
+
+<div class="eq">
+<label>SUB</label>
+<input type="range" min="-30" max="30" value="0" id="sub">
+</div>
+
+<div class="eq">
+<label>BASS</label>
+<input type="range" min="-30" max="30" value="0" id="bass">
+</div>
+
+<div class="eq">
+<label>MID</label>
+<input type="range" min="-30" max="30" value="0" id="mid">
+</div>
+
+<div class="eq">
+<label>HIGH MID</label>
+<input type="range" min="-30" max="30" value="0" id="highmid">
+</div>
+
+<div class="eq">
+<label>TREBLE</label>
+<input type="range" min="-30" max="30" value="0" id="treble">
+</div>
+
 </div>
 
 <canvas id="visualizer"></canvas>
 
-<input type="text" id="search" class="search-box" placeholder="Search song...">
-
-<button id="toggleBtn" onclick="togglePlaylist()">🎵 Songs</button>
-
-<div class="playlist hidden" id="playlist"></div>
+<div class="playlist" id="playlist"></div>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -210,53 +200,65 @@ const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix
 const songs=[
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "10 - Avenged Sevenfold - Unholy Confessions.mp3",
-"13 - Avenged Sevenfold - Seize the Day.mp3",
-"14 - Avenged Sevenfold - Nobody.mp3",
-"18 - Avenged Sevenfold - Blinded in Chains.mp3",
-"35 - Avenged Sevenfold - 4_00 AM.mp3",
-"37 - Avenged Sevenfold - Crossroads.mp3",
-
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
 "06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3"
 ];
 
-let filteredSongs=[...songs];
 let current=0;
-let bassOn=false;
 
 const audio=document.getElementById("audio");
 const playBtn=document.getElementById("playBtn");
 const playlistDiv=document.getElementById("playlist");
-const progress=document.getElementById("progress");
 
-/* AUDIO CONTEXT */
+/* AUDIO SETUP */
+
 const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-const analyser=audioCtx.createAnalyser();
 const source=audioCtx.createMediaElementSource(audio);
-const bassFilter=audioCtx.createBiquadFilter();
 
-bassFilter.type="lowshelf";
-bassFilter.frequency.value=200;
-bassFilter.gain.value=0;
+const sub=audioCtx.createBiquadFilter();
+sub.type="lowshelf";
+sub.frequency.value=60;
 
-source.connect(bassFilter);
-bassFilter.connect(analyser);
+const bass=audioCtx.createBiquadFilter();
+bass.type="lowshelf";
+bass.frequency.value=200;
+
+const mid=audioCtx.createBiquadFilter();
+mid.type="peaking";
+mid.frequency.value=1000;
+
+const highmid=audioCtx.createBiquadFilter();
+highmid.type="peaking";
+highmid.frequency.value=3000;
+
+const treble=audioCtx.createBiquadFilter();
+treble.type="highshelf";
+treble.frequency.value=8000;
+
+const analyser=audioCtx.createAnalyser();
+
+source.connect(sub);
+sub.connect(bass);
+bass.connect(mid);
+mid.connect(highmid);
+highmid.connect(treble);
+treble.connect(analyser);
 analyser.connect(audioCtx.destination);
 
-analyser.fftSize=256;
-const bufferLength=analyser.frequencyBinCount;
-const dataArray=new Uint8Array(bufferLength);
+/* SLIDER EVENTS */
 
-function formatTime(sec){
-let m=Math.floor(sec/60)||0;
-let s=Math.floor(sec%60)||0;
-return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
-}
+document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
+document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
+document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
+document.getElementById("highmid").oninput=e=>highmid.gain.value=e.target.value;
+document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
+
+/* PLAYER */
 
 function loadSong(i){
-audio.src=encodeURI(repoBase+filteredSongs[i]);
-document.getElementById("title").innerText=filteredSongs[i];
+audio.src=encodeURI(repoBase+songs[i]);
+document.getElementById("title").innerText=songs[i];
 highlight();
 }
 
@@ -272,43 +274,26 @@ playBtn.innerText="▶";
 }
 
 function nextSong(){
-current++;
-if(current>=filteredSongs.length) current=0;
+current=(current+1)%songs.length;
 loadSong(current);
 audio.play();
 playBtn.innerText="⏸";
 }
 
 function prevSong(){
-current--;
-if(current<0) current=filteredSongs.length-1;
+current=(current-1+songs.length)%songs.length;
 loadSong(current);
 audio.play();
 playBtn.innerText="⏸";
 }
 
-function toggleBass(){
-bassOn=!bassOn;
-bassFilter.gain.value=bassOn?15:0;
-alert("Bass Booster: "+(bassOn?"ON":"OFF"));
-}
-
 audio.addEventListener("ended",nextSong);
 
-audio.addEventListener("timeupdate",()=>{
-progress.value=(audio.currentTime/audio.duration)*100||0;
-document.getElementById("currentTime").innerText=formatTime(audio.currentTime);
-document.getElementById("duration").innerText=formatTime(audio.duration);
-});
-
-progress.addEventListener("input",()=>{
-audio.currentTime=(progress.value/100)*audio.duration;
-});
-
 /* PLAYLIST */
+
 function buildPlaylist(){
 playlistDiv.innerHTML="";
-filteredSongs.forEach((song,i)=>{
+songs.forEach((song,i)=>{
 const div=document.createElement("div");
 div.className="song";
 div.innerText=song;
@@ -323,15 +308,16 @@ el.classList.toggle("active",i===current);
 });
 }
 
-function togglePlaylist(){
-playlistDiv.classList.toggle("hidden");
-}
-
 /* VISUALIZER */
+
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=140;
+
+analyser.fftSize=256;
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
 
 function draw(){
 requestAnimationFrame(draw);
@@ -343,10 +329,7 @@ let x=0;
 
 for(let i=0;i<bufferLength;i++){
 let barHeight=dataArray[i];
-let r=barHeight+25;
-let g=200*(i/bufferLength);
-let b=150;
-ctx.fillStyle="rgb("+r+","+g+","+b+")";
+ctx.fillStyle="rgb("+(barHeight+50)+",0,0)";
 ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
 x+=barWidth+1;
 }
