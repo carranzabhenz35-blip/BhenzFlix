@@ -1,114 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BhenzFlix Music</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: radial-gradient(circle at center, #2b0000 0%, #000 70%);
-            color: white;
-            text-align: center;
-        }
-
-        header {
-            padding: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            color: red;
-            letter-spacing: 5px;
-            box-shadow: 0 0 20px red;
-        }
-
-        .container {
-            margin-top: 40px;
-        }
-
-        audio {
-            width: 90%;
-            margin-top: 20px;
-        }
-
-        .playlist {
-            margin-top: 30px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .song {
-            padding: 12px;
-            margin: 8px 0;
-            background: #111;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .song:hover {
-            background: red;
-        }
-
-        .active {
-            background: darkred !important;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 20px;
-            background: black;
-            color: gray;
-            font-size: 14px;
-        }
-    </style>
+<title>BhenzFlix Music</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:black;
+    color:white;
+    text-align:center;
+}
+header{
+    padding:20px;
+    font-size:28px;
+    color:red;
+}
+.song{
+    margin:10px;
+    padding:10px;
+    background:#111;
+    cursor:pointer;
+}
+.song:hover{
+    background:red;
+}
+audio{
+    width:90%;
+    margin-top:20px;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-    🎵 BHENZFLIX MUSIC
-</header>
+<header>🎵 BHENZFLIX MUSIC</header>
 
-<div class="container">
+<h2 id="title">Select a Song</h2>
 
-    <h2 id="nowTitle">Now Playing</h2>
+<audio id="player" controls></audio>
 
-    <audio id="audioPlayer" controls></audio>
-
-    <div class="playlist">
-        <div class="song" onclick="playSong('37%20-%20Avenged%20Sevenfold%20-%20Crossroads.mp3', this, 'Crossroads')">
-            🎶 Crossroads
-        </div>
-
-        <div class="song" onclick="playSong('35%20-%20Avenged%20Sevenfold%20-%204_00%20AM.mp3', this, '4:00 AM')">
-            🎶 4:00 AM
-        </div>
-
-        <div class="song" onclick="playSong('18%20-%20Avenged%20Sevenfold%20-%20Blinded%20in%20Chains.mp3', this, 'Blinded in Chains')">
-            🎶 Blinded in Chains
-        </div>
-    </div>
-
-</div>
-
-<footer>
-    © 2026 BhenzFlix Music Player
-</footer>
+<div class="song" onclick="play('crossroads.mp3','Crossroads')">Crossroads</div>
+<div class="song" onclick="play('fouram.mp3','4:00 AM')">4:00 AM</div>
+<div class="song" onclick="play('blinded.mp3','Blinded in Chains')">Blinded in Chains</div>
 
 <script>
-function playSong(file, element, title) {
-    var player = document.getElementById("audioPlayer");
-    var songs = document.querySelectorAll(".song");
-
-    songs.forEach(s => s.classList.remove("active"));
-    element.classList.add("active");
-
-    document.getElementById("nowTitle").innerText = "Now Playing: " + title;
-
-    player.src = file;
-    player.play();
+function play(file,title){
+    var p=document.getElementById("player");
+    document.getElementById("title").innerText="Now Playing: "+title;
+    p.src=file;
+    p.play();
 }
 </script>
 
