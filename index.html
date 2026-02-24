@@ -23,11 +23,11 @@ body{
 }
 
 .album{
-    width:230px;
-    height:230px;
+    width:220px;
+    height:220px;
     border-radius:50%;
-    margin:30px auto 20px;
-    box-shadow:0 0 50px red;
+    margin:20px auto;
+    box-shadow:0 0 40px red;
     overflow:hidden;
 }
 
@@ -37,35 +37,45 @@ body{
     object-fit:cover;
 }
 
-#title{
-    margin:15px;
-    font-size:14px;
-}
-
 .controls button{
     background:none;
     border:none;
     color:white;
-    font-size:28px;
-    margin:10px 20px;
+    font-size:26px;
+    margin:10px 15px;
 }
 
 canvas{
     width:100%;
-    height:200px;
+    height:160px;
+}
+
+.search-box{
+    width:90%;
+    padding:8px;
+    margin:10px auto;
     display:block;
+    border:none;
+    border-radius:5px;
 }
 
 .playlist{
     width:90%;
-    margin:20px auto;
+    margin:10px auto;
+    max-height:250px;
+    overflow-y:auto;
+    border-top:1px solid #333;
 }
 
 .song{
-    padding:10px;
-    border-bottom:1px solid rgba(255,255,255,0.2);
+    padding:8px;
+    border-bottom:1px solid #222;
     cursor:pointer;
     font-size:13px;
+}
+
+.song:hover{
+    background:#111;
 }
 
 .song.active{
@@ -76,10 +86,10 @@ canvas{
 
 <body>
 
-<div class="topbar">🎵 BHENZFLIX MUSIC</div>
+<div class="topbar">🎵 BHENZFLIX MUSIC LIBRARY</div>
 
 <div class="album">
-   <img id="cover" src="https://picsum.photos/400/400?random=1">
+    <img id="cover" src="https://picsum.photos/400/400?random=1">
 </div>
 
 <div id="title">Loading...</div>
@@ -91,6 +101,8 @@ canvas{
 </div>
 
 <canvas id="visualizer"></canvas>
+
+<input type="text" id="search" class="search-box" placeholder="Search song...">
 
 <div class="playlist" id="playlist"></div>
 
@@ -123,15 +135,18 @@ const songs = [
 
 ];
 
+let filteredSongs = [...songs];
 let current = 0;
+
 const audio = document.getElementById("audio");
 const title = document.getElementById("title");
 const playlistDiv = document.getElementById("playlist");
 const cover = document.getElementById("cover");
+const searchInput = document.getElementById("search");
 
 function loadSong(index){
-    audio.src = encodeURI(repoBase + songs[index]);
-    title.innerText = songs[index];
+    audio.src = encodeURI(repoBase + filteredSongs[index]);
+    title.innerText = filteredSongs[index];
     cover.src = "https://picsum.photos/400/400?random=" + Math.random();
     highlight();
 }
@@ -147,14 +162,14 @@ function playPause(){
 
 function nextSong(){
     current++;
-    if(current >= songs.length) current = 0;
+    if(current >= filteredSongs.length) current = 0;
     loadSong(current);
     audio.play();
 }
 
 function prevSong(){
     current--;
-    if(current < 0) current = songs.length-1;
+    if(current < 0) current = filteredSongs.length-1;
     loadSong(current);
     audio.play();
 }
@@ -172,7 +187,8 @@ function highlight(){
 }
 
 function buildPlaylist(){
-    songs.forEach((song,index)=>{
+    playlistDiv.innerHTML="";
+    filteredSongs.forEach((song,index)=>{
         const div = document.createElement("div");
         div.classList.add("song");
         div.innerText = song;
@@ -185,17 +201,25 @@ function buildPlaylist(){
     });
 }
 
+searchInput.addEventListener("input",()=>{
+    const searchTerm = searchInput.value.toLowerCase();
+    filteredSongs = songs.filter(song =>
+        song.toLowerCase().includes(searchTerm)
+    );
+    current = 0;
+    buildPlaylist();
+    if(filteredSongs.length>0) loadSong(0);
+});
+
 buildPlaylist();
 loadSong(current);
 
-
 /* ===== VISUALIZER ===== */
-
 const canvas = document.getElementById("visualizer");
 const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
-canvas.height = 200;
+canvas.height = 160;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const analyser = audioCtx.createAnalyser();
@@ -221,14 +245,8 @@ function animate(){
 
     for(let i=0;i<bufferLength;i++){
         const barHeight = dataArray[i];
-
-        const r = barHeight + 50;
-        const g = 255 - barHeight;
-        const b = 150;
-
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillStyle = "rgb("+(barHeight+50)+",0,0)";
         ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-
         x += barWidth;
     }
 }
