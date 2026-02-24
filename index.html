@@ -14,6 +14,8 @@ text-align:center;
 overflow-x:hidden;
 }
 
+/* HEADER */
+
 .topbar{
 padding:15px;
 font-size:22px;
@@ -86,17 +88,26 @@ height:140px;
 margin-top:15px;
 }
 
-/* PLAYLIST */
+/* PLAYLIST HIDDEN */
 
 .playlist{
-width:90%;
-margin:auto;
-max-height:200px;
+position:fixed;
+left:0;
+bottom:-400px;
+width:100%;
+max-height:300px;
+background:#111;
 overflow-y:auto;
+transition:0.4s;
+box-shadow:0 -5px 20px red;
+}
+
+.playlist.active{
+bottom:0;
 }
 
 .song{
-padding:6px;
+padding:10px;
 border-bottom:1px solid #222;
 cursor:pointer;
 }
@@ -105,14 +116,44 @@ cursor:pointer;
 color:#00ffcc;
 }
 
+/* FLOAT BUTTONS */
+
+.song-btn{
+position:fixed;
+bottom:20px;
+left:20px;
+background:red;
+color:white;
+border:none;
+padding:12px 15px;
+border-radius:50%;
+font-size:18px;
+box-shadow:0 0 15px red;
+cursor:pointer;
+}
+
+.eq-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:red;
+color:white;
+border:none;
+padding:12px 15px;
+border-radius:50%;
+font-size:18px;
+box-shadow:0 0 15px red;
+cursor:pointer;
+}
+
 /* EQ PANEL */
 
 .eq-panel{
 position:fixed;
-bottom:-300px;
+bottom:-320px;
 left:0;
 width:100%;
-height:300px;
+height:260px;
 background:#111;
 box-shadow:0 -5px 20px red;
 transition:0.4s;
@@ -120,7 +161,7 @@ padding-top:20px;
 }
 
 .eq-panel.active{
-bottom:0;
+bottom:60px; /* naka-angat konti */
 }
 
 .eq-container{
@@ -140,22 +181,6 @@ font-size:12px;
 writing-mode:bt-lr;
 -webkit-appearance:slider-vertical;
 height:150px;
-}
-
-/* FLOAT BUTTON */
-
-.eq-btn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:red;
-color:white;
-border:none;
-padding:12px 15px;
-border-radius:50%;
-font-size:18px;
-box-shadow:0 0 15px red;
-cursor:pointer;
 }
 </style>
 </head>
@@ -194,9 +219,10 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 
 <canvas id="visualizer"></canvas>
 
-<div class="playlist" id="playlist"></div>
-
+<button class="song-btn" onclick="togglePlaylist()">🎵</button>
 <button class="eq-btn" onclick="toggleEQ()">🎚</button>
+
+<div class="playlist" id="playlist"></div>
 
 <div class="eq-panel" id="eqPanel">
 <div class="eq-container">
@@ -236,7 +262,6 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs=[
-
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
@@ -261,7 +286,6 @@ const songs=[
 "35 - JAY-Z - Dirt Off Your Shoulder.mp3",
 "36 - Linkin Park - Hands Held High.mp3",
 "37 - Avenged Sevenfold - Crossroads.mp3"
-
 ];
 
 let current=0;
@@ -270,31 +294,6 @@ const audio=document.getElementById("audio");
 const playBtn=document.getElementById("playBtn");
 const playlistDiv=document.getElementById("playlist");
 
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-const source=audioCtx.createMediaElementSource(audio);
-
-const sub=audioCtx.createBiquadFilter(); sub.type="lowshelf"; sub.frequency.value=60;
-const bass=audioCtx.createBiquadFilter(); bass.type="lowshelf"; bass.frequency.value=200;
-const mid=audioCtx.createBiquadFilter(); mid.type="peaking"; mid.frequency.value=1000;
-const high=audioCtx.createBiquadFilter(); high.type="peaking"; high.frequency.value=3000;
-const treble=audioCtx.createBiquadFilter(); treble.type="highshelf"; treble.frequency.value=8000;
-
-const analyser=audioCtx.createAnalyser();
-
-source.connect(sub);
-sub.connect(bass);
-bass.connect(mid);
-mid.connect(high);
-high.connect(treble);
-treble.connect(analyser);
-analyser.connect(audioCtx.destination);
-
-document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
-document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
-document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
-document.getElementById("high").oninput=e=>high.gain.value=e.target.value;
-document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
-
 function loadSong(i){
 audio.src=encodeURI(repoBase+songs[i]);
 document.getElementById("title").innerText=songs[i];
@@ -302,7 +301,6 @@ highlight();
 }
 
 function togglePlay(){
-audioCtx.resume();
 if(audio.paused){
 audio.play();
 playBtn.innerText="⏸";
@@ -334,7 +332,7 @@ songs.forEach((song,i)=>{
 const div=document.createElement("div");
 div.className="song";
 div.innerText=song;
-div.onclick=()=>{current=i;loadSong(i);audio.play();playBtn.innerText="⏸";};
+div.onclick=()=>{current=i;loadSong(i);audio.play();playBtn.innerText="⏸";togglePlaylist();};
 playlistDiv.appendChild(div);
 });
 }
@@ -345,31 +343,9 @@ el.classList.toggle("active",i===current);
 });
 }
 
-const canvas=document.getElementById("visualizer");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=140;
-
-analyser.fftSize=256;
-const bufferLength=analyser.frequencyBinCount;
-const dataArray=new Uint8Array(bufferLength);
-
-function draw(){
-requestAnimationFrame(draw);
-analyser.getByteFrequencyData(dataArray);
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-let barWidth=(canvas.width/bufferLength)*2.5;
-let x=0;
-
-for(let i=0;i<bufferLength;i++){
-let barHeight=dataArray[i];
-ctx.fillStyle="rgb("+(barHeight+50)+",0,0)";
-ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
-x+=barWidth+1;
+function togglePlaylist(){
+playlistDiv.classList.toggle("active");
 }
-}
-draw();
 
 function toggleEQ(){
 document.getElementById("eqPanel").classList.toggle("active");
