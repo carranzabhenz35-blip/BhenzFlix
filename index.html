@@ -38,12 +38,7 @@ body{
 }
 
 #title{
-    font-size:18px;
     margin:15px;
-}
-
-#progress{
-    width:85%;
 }
 
 .controls button{
@@ -52,13 +47,6 @@ body{
     color:white;
     font-size:28px;
     margin:10px 20px;
-}
-
-canvas{
-    width:100%;
-    height:150px;
-    display:block;
-    margin-top:20px;
 }
 
 .playlist{
@@ -88,15 +76,11 @@ canvas{
 
 <div id="title">Loading...</div>
 
-<input type="range" id="progress" value="0">
-
 <div class="controls">
     <button onclick="prevSong()">⏮</button>
     <button onclick="playPause()">▶</button>
     <button onclick="nextSong()">⏭</button>
 </div>
-
-<canvas id="visualizer"></canvas>
 
 <div class="playlist" id="playlist"></div>
 
@@ -104,7 +88,8 @@ canvas{
 
 <script>
 
-/* ====== ILAGAY MO EXACT FILENAMES DITO ====== */
+const repoBase = "https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
+
 const songs = [
 
 "01 - My Chemical Romance - I’m Not Okay (I Promise).mp3",
@@ -131,12 +116,12 @@ const songs = [
 let current = 0;
 const audio = document.getElementById("audio");
 const title = document.getElementById("title");
-const progress = document.getElementById("progress");
 const playlistDiv = document.getElementById("playlist");
 const cover = document.getElementById("cover");
 
 function loadSong(index){
-    audio.src = encodeURI(songs[index]); // AUTO FIX SPECIAL CHARACTERS
+    const fullURL = encodeURI(repoBase + songs[index]);
+    audio.src = fullURL;
     title.innerText = songs[index];
     cover.src = "https://picsum.photos/400/400?random=" + Math.random();
     highlight();
@@ -163,18 +148,6 @@ function prevSong(){
     loadSong(current);
     audio.play();
 }
-
-audio.addEventListener("timeupdate",()=>{
-    if(audio.duration){
-        progress.value = (audio.currentTime / audio.duration) * 100;
-    }
-});
-
-progress.addEventListener("input",()=>{
-    if(audio.duration){
-        audio.currentTime = (progress.value / 100) * audio.duration;
-    }
-});
 
 audio.addEventListener("ended",()=>{
     nextSong();
@@ -204,45 +177,6 @@ function buildPlaylist(){
 
 buildPlaylist();
 loadSong(current);
-
-
-/* ===== REAL VISUALIZER ===== */
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = 150;
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const analyser = audioCtx.createAnalyser();
-const source = audioCtx.createMediaElementSource(audio);
-
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
-
-analyser.fftSize = 128;
-const bufferLength = analyser.frequencyBinCount;
-const dataArray = new Uint8Array(bufferLength);
-
-function animate(){
-    requestAnimationFrame(animate);
-    analyser.getByteFrequencyData(dataArray);
-
-    ctx.fillStyle = "black";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    const barWidth = (canvas.width / bufferLength);
-    let x = 0;
-
-    for(let i=0;i<bufferLength;i++){
-        const barHeight = dataArray[i];
-        ctx.fillStyle = "rgb("+(barHeight+50)+",0,0)";
-        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-        x += barWidth;
-    }
-}
-
-animate();
 
 </script>
 
