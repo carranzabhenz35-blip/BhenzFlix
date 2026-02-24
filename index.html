@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BhenzFlix Music Playlist</title>
+    <title>BhenzFlix Music</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -23,7 +23,7 @@
         }
 
         .container {
-            margin-top: 50px;
+            margin-top: 40px;
         }
 
         audio {
@@ -51,6 +51,10 @@
             background: red;
         }
 
+        .active {
+            background: darkred !important;
+        }
+
         footer {
             margin-top: 50px;
             padding: 20px;
@@ -69,28 +73,43 @@
 
 <div class="container">
 
-    <h2>Now Playing</h2>
+    <h2 id="nowTitle">Now Playing: Crossroads</h2>
 
     <audio id="audioPlayer" controls>
-        <source src="song1.mp3" type="audio/mpeg">
+        <source src="crossroads.mp3" type="audio/mpeg">
         Your browser does not support audio.
     </audio>
 
     <div class="playlist">
-        <div class="song" onclick="playSong('song1.mp3')">🎶 Song 1</div>
-        <div class="song" onclick="playSong('song2.mp3')">🎶 Song 2</div>
-        <div class="song" onclick="playSong('song3.mp3')">🎶 Song 3</div>
+        <div class="song active" onclick="playSong('crossroads.mp3', this, 'Crossroads')">
+            🎶 Crossroads
+        </div>
+
+        <div class="song" onclick="playSong('fouram.mp3', this, '4:00 AM')">
+            🎶 4:00 AM
+        </div>
+
+        <div class="song" onclick="playSong('blinded.mp3', this, 'Blinded in Chains')">
+            🎶 Blinded in Chains
+        </div>
     </div>
 
 </div>
 
 <footer>
-    © 2026 BhenzFlix Music Playlist
+    © 2026 BhenzFlix Music Player
 </footer>
 
 <script>
-function playSong(songFile) {
+function playSong(songFile, element, title) {
     var player = document.getElementById("audioPlayer");
+    var songs = document.querySelectorAll(".song");
+
+    songs.forEach(s => s.classList.remove("active"));
+    element.classList.add("active");
+
+    document.getElementById("nowTitle").innerText = "Now Playing: " + title;
+
     player.src = songFile;
     player.play();
 }
