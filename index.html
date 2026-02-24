@@ -1,91 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BhenzFlix Music</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BhenzFlix Music</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body{
-            margin:0;
-            font-family:Arial, sans-serif;
-            background: radial-gradient(circle at center, #2b0000 0%, #000000 70%);
-            color:white;
-            text-align:center;
-        }
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background: radial-gradient(circle at center, #2b0000 0%, #000 70%);
+    color:white;
+    text-align:center;
+}
+header{
+    padding:25px;
+    font-size:30px;
+    font-weight:bold;
+    color:red;
+    letter-spacing:6px;
+    box-shadow:0 0 25px red;
+}
+.container{
+    margin-top:40px;
+    padding:20px;
+}
+audio{
+    width:90%;
+    margin-top:20px;
+}
+.controls{
+    margin-top:15px;
+}
+.btn{
+    padding:10px 20px;
+    margin:5px;
+    background:red;
+    border:none;
+    color:white;
+    border-radius:5px;
+    cursor:pointer;
+}
+.btn:hover{
+    background:darkred;
+}
+.playlist{
+    margin-top:30px;
+    max-width:400px;
+    margin-left:auto;
+    margin-right:auto;
+}
+.song{
+    padding:12px;
+    margin:8px 0;
+    background:#111;
+    border-radius:5px;
+    cursor:pointer;
+}
+.song:hover{
+    background:red;
+}
+.active{
+    background:darkred !important;
+}
 
-        header{
-            padding:25px;
-            font-size:30px;
-            font-weight:bold;
-            color:red;
-            letter-spacing:6px;
-            box-shadow:0 0 25px red;
-        }
+/* VISUALIZER */
+.visualizer{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    height:80px;
+    margin-top:20px;
+}
+.bar{
+    width:8px;
+    margin:0 4px;
+    background:red;
+    animation: bounce 1s infinite ease-in-out;
+}
+.bar:nth-child(2){ animation-delay: .1s; }
+.bar:nth-child(3){ animation-delay: .2s; }
+.bar:nth-child(4){ animation-delay: .3s; }
+.bar:nth-child(5){ animation-delay: .4s; }
 
-        .container{
-            margin-top:40px;
-            padding:20px;
-        }
+@keyframes bounce{
+    0%,100%{ height:20px; }
+    50%{ height:70px; }
+}
 
-        h2{
-            margin-bottom:20px;
-        }
-
-        audio{
-            width:90%;
-            margin-top:20px;
-        }
-
-        .controls{
-            margin-top:15px;
-        }
-
-        .btn{
-            padding:10px 20px;
-            margin:5px;
-            background:red;
-            border:none;
-            color:white;
-            border-radius:5px;
-            cursor:pointer;
-        }
-
-        .btn:hover{
-            background:darkred;
-        }
-
-        .playlist{
-            margin-top:30px;
-            max-width:400px;
-            margin-left:auto;
-            margin-right:auto;
-        }
-
-        .song{
-            padding:12px;
-            margin:8px 0;
-            background:#111;
-            border-radius:5px;
-            cursor:pointer;
-            transition:0.3s;
-        }
-
-        .song:hover{
-            background:red;
-        }
-
-        .active{
-            background:darkred !important;
-        }
-
-        footer{
-            margin-top:50px;
-            padding:20px;
-            background:black;
-            color:gray;
-            font-size:14px;
-        }
-    </style>
+footer{
+    margin-top:50px;
+    padding:20px;
+    background:black;
+    color:gray;
+    font-size:14px;
+}
+</style>
 </head>
 
 <body>
@@ -94,90 +103,74 @@
 
 <div class="container">
 
-    <h2 id="nowTitle">Now Playing</h2>
+<h2 id="nowTitle">Now Playing</h2>
 
-    <audio id="player" controls></audio>
+<audio id="player" controls></audio>
 
-    <div class="controls">
-        <button class="btn" onclick="prevSong()">⏮ Previous</button>
-        <button class="btn" onclick="nextSong()">⏭ Next</button>
-    </div>
+<div class="visualizer">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+</div>
 
-    <div class="playlist" id="playlist"></div>
+<div class="controls">
+    <button class="btn" onclick="prevSong()">⏮ Prev</button>
+    <button class="btn" onclick="nextSong()">Next ⏭</button>
+</div>
+
+<div class="playlist" id="playlist"></div>
 
 </div>
 
-<footer>
-    © 2026 BhenzFlix Music Player
-</footer>
+<footer>© 2026 BhenzFlix Music Player</footer>
 
 <script>
 var songs = [
 {
-    title: "A Boy Brushed Red Living In Black And White",
-    file: "https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1"
-},
-{
-    title: "Crossroads",
-    file: "ILAGAY_MO_DITO_2ND_DROPBOX_LINK"
-},
-{
-    title: "4:00 AM",
-    file: "ILAGAY_MO_DITO_3RD_DROPBOX_LINK"
+title:"A Boy Brushed Red",
+file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1"
 }
 ];
 
-var currentIndex = 0;
-var player = document.getElementById("player");
-var nowTitle = document.getElementById("nowTitle");
-var playlistDiv = document.getElementById("playlist");
+var currentIndex=0;
+var player=document.getElementById("player");
+var nowTitle=document.getElementById("nowTitle");
+var playlistDiv=document.getElementById("playlist");
 
 function loadPlaylist(){
-    songs.forEach(function(song, index){
-        var div = document.createElement("div");
-        div.className = "song";
-        div.innerText = "🎶 " + song.title;
-        div.onclick = function(){
-            currentIndex = index;
-            playSong();
-        };
-        playlistDiv.appendChild(div);
-    });
+songs.forEach(function(song,index){
+var div=document.createElement("div");
+div.className="song";
+div.innerText="🎶 "+song.title;
+div.onclick=function(){
+currentIndex=index;
+playSong();
+};
+playlistDiv.appendChild(div);
+});
 }
 
 function playSong(){
-    player.src = songs[currentIndex].file;
-    nowTitle.innerText = "Now Playing: " + songs[currentIndex].title;
-    player.play();
-    updateActive();
+player.src=songs[currentIndex].file;
+nowTitle.innerText="Now Playing: "+songs[currentIndex].title;
+player.play();
+updateActive();
 }
 
 function nextSong(){
-    currentIndex++;
-    if(currentIndex >= songs.length){
-        currentIndex = 0;
-    }
-    playSong();
+currentIndex++;
+if(currentIndex>=songs.length){currentIndex=0;}
+playSong();
 }
 
 function prevSong(){
-    currentIndex--;
-    if(currentIndex < 0){
-        currentIndex = songs.length - 1;
-    }
-    playSong();
+currentIndex--;
+if(currentIndex<0){currentIndex=songs.length-1;}
+playSong();
 }
 
 function updateActive(){
-    var items = document.querySelectorAll(".song");
-    items.forEach(item => item.classList.remove("active"));
-    items[currentIndex].classList.add("active");
-}
-
-player.addEventListener("ended", nextSong);
-
-loadPlaylist();
-</script>
-
-</body>
-</html>
+var items=document.querySelectorAll(".song");
+items.forEach(item=>item.classList.remove("active
