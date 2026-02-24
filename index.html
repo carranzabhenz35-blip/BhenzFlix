@@ -13,7 +13,6 @@ body{
     overflow-x:hidden;
 }
 
-/* BLUR BACKGROUND */
 #bg{
     position:fixed;
     width:100%;
@@ -25,7 +24,6 @@ body{
     transition:0.5s;
 }
 
-/* TOP BANNER */
 .topbar{
     position:fixed;
     top:0;
@@ -39,12 +37,6 @@ body{
     text-shadow:0 0 15px red;
     box-shadow:0 0 20px red;
     z-index:999;
-    animation:glow 2s infinite alternate;
-}
-
-@keyframes glow{
-    from{ text-shadow:0 0 10px red; }
-    to{ text-shadow:0 0 25px red; }
 }
 
 .container{
@@ -60,11 +52,6 @@ body{
     background-size:cover;
     background-position:center;
     box-shadow:0 0 30px red;
-    transition:0.4s;
-}
-
-h2{
-    margin:10px 0;
 }
 
 .progress{
@@ -95,7 +82,6 @@ h2{
     cursor:pointer;
 }
 
-/* Equalizer */
 .equalizer{
     display:flex;
     justify-content:center;
@@ -122,10 +108,9 @@ h2{
     50%{height:50px;}
 }
 
-/* Playlist */
 .playlist{
     margin-top:25px;
-    max-height:200px;
+    max-height:220px;
     overflow:auto;
     border-top:1px solid #444;
 }
@@ -188,13 +173,33 @@ h2{
 <script>
 var songs=[
 {
-title:"A Boy Brushed Red",
-file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1",
+title:"All That I've Got - The Used",
+file:"https://www.dropbox.com/scl/fi/wdu2alcuhrsm8awna1uj1/All-That-I-ve-Got-The-Used-320K.mp3?rlkey=anoeqb74vqikcrmmf8h0lckro&st=lohzn2cb&raw=1",
 cover:"https://i.imgur.com/8Km9tLL.jpg"
 },
 {
-title:"Add More Song Here",
-file:"YOUR_DROPBOX_LINK?raw=1",
+title:"Alone - Alan Walker",
+file:"https://www.dropbox.com/scl/fi/8zjje4jpmbroy9ogbk8zz/Alone-Alan-Walker-320K.mp3?rlkey=6wnchjft0zw967ckz95fpwd1c&st=xxnfi5c0&raw=1",
+cover:"https://i.imgur.com/8Km9tLL.jpg"
+},
+{
+title:"Bad Day - Daniel Powter",
+file:"https://www.dropbox.com/scl/fi/13zp82q80ap63jdiv6xuf/Bad-Day-Daniel-Powter-320K.mp3?rlkey=afa5rc15jvlpsu4xzm4vfsspg&st=dp2kax36&raw=1",
+cover:"https://i.imgur.com/8Km9tLL.jpg"
+},
+{
+title:"Californication - RHCP",
+file:"https://www.dropbox.com/scl/fi/l7xgxakinjcv8toepu7a7/Californication-Red-Hot-Chili-Peppers-320K.mp3?rlkey=ynfue8o64bjz2hqd120zt7kv6&st=vs60i2b8&raw=1",
+cover:"https://i.imgur.com/8Km9tLL.jpg"
+},
+{
+title:"Cancer - My Chemical Romance",
+file:"https://www.dropbox.com/scl/fi/qd9lcvwz06i1kcdwnfi4s/Cancer-My-Chemical-Romance-320K.mp3?rlkey=9hm62cf3mwiawlreulkedr177&st=o5y0lffe&raw=1",
+cover:"https://i.imgur.com/8Km9tLL.jpg"
+},
+{
+title:"Dear God - Avenged Sevenfold",
+file:"https://www.dropbox.com/scl/fi/fputru8ctd70m3ho564px/Dear-God-Avenged-Sevenfold-320K.mp3?rlkey=qm2eeph4ljs1yrxj6r8v7il69&st=gcwxolq1&raw=1",
 cover:"https://i.imgur.com/8Km9tLL.jpg"
 }
 ];
