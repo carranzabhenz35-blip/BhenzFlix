@@ -11,9 +11,9 @@ body{
     background:radial-gradient(circle at center, #2a0000, black);
     color:white;
     text-align:center;
-    overflow-x:hidden;
 }
 
+/* HEADER */
 .topbar{
     padding:15px;
     font-size:22px;
@@ -22,7 +22,8 @@ body{
     text-shadow:0 0 15px red;
 }
 
-/* ===== ALBUM + ROTATING TEXT ===== */
+/* ===== ALBUM + PERFECT CENTERED ROTATING TEXT ===== */
+
 .album-wrapper{
     position:relative;
     width:260px;
@@ -30,14 +31,26 @@ body{
     margin:20px auto;
 }
 
+.rotating-ring{
+    position:absolute;
+    width:260px;
+    height:260px;
+    animation:spin 12s linear infinite;
+}
+
+.rotating-ring svg{
+    width:100%;
+    height:100%;
+}
+
 .album{
-    width:220px;
-    height:220px;
+    position:absolute;
+    top:30px;
+    left:30px;
+    width:200px;
+    height:200px;
     border-radius:50%;
     overflow:hidden;
-    position:absolute;
-    top:20px;
-    left:20px;
     box-shadow:0 0 40px red;
 }
 
@@ -47,48 +60,38 @@ body{
     object-fit:cover;
 }
 
-.circle-text{
-    position:absolute;
-    width:260px;
-    height:260px;
-    animation:spin 15s linear infinite;
-    text-transform:uppercase;
-}
-
 @keyframes spin{
     from{transform:rotate(0deg);}
     to{transform:rotate(360deg);}
 }
 
+/* TITLE */
 #title{
     margin:15px;
     font-size:15px;
 }
 
+/* CONTROLS */
 .controls button{
-    background:rgba(255,0,0,0.1);
+    background:rgba(255,0,0,0.15);
     border:none;
     color:white;
     font-size:22px;
     margin:8px;
-    padding:10px 14px;
-    border-radius:10px;
-    box-shadow:0 0 10px red;
+    padding:12px 16px;
+    border-radius:12px;
+    box-shadow:0 0 15px red;
 }
 
 .controls button:hover{
     background:red;
 }
 
-canvas{
-    width:100%;
-    height:180px;
-}
-
+/* SEARCH */
 .search-box{
     width:85%;
     padding:10px;
-    margin:10px auto;
+    margin:15px auto;
     display:block;
     border:none;
     border-radius:15px;
@@ -96,6 +99,7 @@ canvas{
     color:white;
 }
 
+/* PLAYLIST */
 .playlist{
     width:90%;
     margin:10px auto;
@@ -124,24 +128,28 @@ canvas{
 <div class="topbar">🎵 BHENZFLIX MUSIC</div>
 
 <div class="album-wrapper">
-    <svg viewBox="0 0 300 300" class="circle-text">
-        <defs>
-            <path id="circlePath"
-                d="M150,150
-                   m-110,0
-                   a110,110 0 1,1 220,0
-                   a110,110 0 1,1 -220,0"/>
-        </defs>
-        <text fill="red" font-size="18" letter-spacing="4">
-            <textPath href="#circlePath">
-                POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
-            </textPath>
-        </text>
-    </svg>
+
+    <div class="rotating-ring">
+        <svg viewBox="0 0 260 260">
+            <defs>
+                <path id="circlePath"
+                    d="M130,130
+                       m-115,0
+                       a115,115 0 1,1 230,0
+                       a115,115 0 1,1 -230,0"/>
+            </defs>
+            <text fill="red" font-size="16" letter-spacing="3">
+                <textPath href="#circlePath">
+                    • POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
+                </textPath>
+            </text>
+        </svg>
+    </div>
 
     <div class="album">
         <img id="cover" src="https://picsum.photos/400/400?random=1">
     </div>
+
 </div>
 
 <div id="title">Loading...</div>
@@ -151,8 +159,6 @@ canvas{
     <button onclick="playPause()">▶</button>
     <button onclick="nextSong()">⏭</button>
 </div>
-
-<canvas id="visualizer"></canvas>
 
 <input type="text" id="search" class="search-box" placeholder="Search song...">
 
@@ -188,7 +194,6 @@ function loadSong(i){
 }
 
 function playPause(){
-    audioCtx.resume();
     if(audio.paused) audio.play();
     else audio.pause();
 }
@@ -236,43 +241,6 @@ document.getElementById("search").addEventListener("input",e=>{
 
 buildPlaylist();
 loadSong(current);
-
-/* VISUALIZER */
-const canvas=document.getElementById("visualizer");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=180;
-
-const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-const analyser=audioCtx.createAnalyser();
-const source=audioCtx.createMediaElementSource(audio);
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
-analyser.fftSize=256;
-
-const bufferLength=analyser.frequencyBinCount;
-const dataArray=new Uint8Array(bufferLength);
-
-function animate(){
-    requestAnimationFrame(animate);
-    analyser.getByteFrequencyData(dataArray);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    const barWidth=(canvas.width/bufferLength)*2;
-    let x=0;
-
-    for(let i=0;i<bufferLength;i++){
-        const h=dataArray[i];
-        const gradient=ctx.createLinearGradient(0,0,0,canvas.height);
-        gradient.addColorStop(0,"#ff0000");
-        gradient.addColorStop(0.5,"#aa00ff");
-        gradient.addColorStop(1,"#00ffff");
-        ctx.fillStyle=gradient;
-        ctx.fillRect(x,canvas.height-h,barWidth-2,h);
-        x+=barWidth;
-    }
-}
-animate();
 
 </script>
 
