@@ -41,6 +41,7 @@ body{
     background:#333;
     margin:15px auto;
     border-radius:5px;
+    overflow:hidden;
 }
 
 .progress-bar{
@@ -56,6 +57,7 @@ body{
     color:white;
     font-size:28px;
     margin:10px;
+    cursor:pointer;
 }
 
 /* PLAYLIST */
@@ -87,9 +89,11 @@ body{
 <div id="progressBar" class="progress-bar"></div>
 </div>
 
+<div>
 <button class="btn" onclick="prevSong()">⏮</button>
 <button class="btn" onclick="togglePlay()">▶</button>
 <button class="btn" onclick="nextSong()">⏭</button>
+</div>
 
 <div class="playlist" id="playlist"></div>
 
@@ -98,28 +102,32 @@ body{
 <script>
 var songs=[
 {
-title:"All That I've Got - The Used",
-file:"https://www.dropbox.com/scl/fi/wdu2alcuhrsm8awna1uj1/All-That-I-ve-Got-The-Used-320K.mp3?raw=1"
+title:"Buried Alive",
+file:"04 - Avenged Sevenfold - Buried Alive.mp3"
 },
 {
-title:"Alone - Alan Walker",
-file:"https://www.dropbox.com/scl/fi/8zjje4jpmbroy9ogbk8zz/Alone-Alan-Walker-320K.mp3?raw=1"
+title:"Unholy Confessions",
+file:"10 - Avenged Sevenfold - Unholy Confessions.mp3"
 },
 {
-title:"Bad Day - Daniel Powter",
-file:"https://www.dropbox.com/scl/fi/13zp82q80ap63jdiv6xuf/Bad-Day-Daniel-Powter-320K.mp3?raw=1"
+title:"Seize the Day",
+file:"13 - Avenged Sevenfold - Seize the Day.mp3"
 },
 {
-title:"Californication - RHCP",
-file:"https://www.dropbox.com/scl/fi/l7xgxakinjcv8toepu7a7/Californication-Red-Hot-Chili-Peppers-320K.mp3?raw=1"
+title:"Nobody",
+file:"14 - Avenged Sevenfold - Nobody.mp3"
 },
 {
-title:"Cancer - My Chemical Romance",
-file:"https://www.dropbox.com/scl/fi/qd9lcvwz06i1kcdwnfi4s/Cancer-My-Chemical-Romance-320K.mp3?raw=1"
+title:"Blinded in Chains",
+file:"18 - Avenged Sevenfold - Blinded in Chains.mp3"
 },
 {
-title:"Dear God - Avenged Sevenfold",
-file:"https://www.dropbox.com/scl/fi/fputru8ctd70m3ho564px/Dear-God-Avenged-Sevenfold-320K.mp3?raw=1"
+title:"4:00 AM",
+file:"35 - Avenged Sevenfold - 4_00 AM.mp3"
+},
+{
+title:"Crossroads",
+file:"37 - Avenged Sevenfold - Crossroads.mp3"
 }
 ];
 
@@ -151,19 +159,26 @@ updateActive();
 }
 
 function togglePlay(){
-if(player.paused){player.play();}
-else{player.pause();}
+if(player.paused){
+player.play();
+}else{
+player.pause();
+}
 }
 
 function nextSong(){
 currentIndex++;
-if(currentIndex>=songs.length){currentIndex=0;}
+if(currentIndex>=songs.length){
+currentIndex=0;
+}
 playSong();
 }
 
 function prevSong(){
 currentIndex--;
-if(currentIndex<0){currentIndex=songs.length-1;}
+if(currentIndex<0){
+currentIndex=songs.length-1;
+}
 playSong();
 }
 
@@ -180,6 +195,7 @@ progressBar.style.width=percent+"%";
 }
 });
 
+/* AUTO NEXT */
 player.onended=function(){
 nextSong();
 };
