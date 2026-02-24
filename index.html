@@ -39,6 +39,7 @@ body{
 
 #title{
     margin:15px;
+    font-size:14px;
 }
 
 .controls button{
@@ -61,9 +62,10 @@ canvas{
 }
 
 .song{
-    padding:12px;
+    padding:10px;
     border-bottom:1px solid rgba(255,255,255,0.2);
     cursor:pointer;
+    font-size:13px;
 }
 
 .song.active{
@@ -99,15 +101,26 @@ canvas{
 const repoBase = "https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs = [
-"01 - My Chemical Romance - I’m Not Okay (I Promise).mp3",
-"02 - My Chemical Romance - Helena.mp3",
+
 "04 - Avenged Sevenfold - Buried Alive.mp3",
-"07 - Linkin Park - What I've Done.mp3",
 "10 - Avenged Sevenfold - Unholy Confessions.mp3",
 "13 - Avenged Sevenfold - Seize the Day.mp3",
-"13 - Linkin Park - Bleed It Out.mp3",
 "14 - Avenged Sevenfold - Nobody.mp3",
-"15 - Linkin Park - Given Up.mp3"
+"18 - Avenged Sevenfold - Blinded in Chains.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
+"37 - Avenged Sevenfold - Crossroads.mp3",
+
+"07 - Linkin Park - What I've Done.mp3",
+"13 - Linkin Park - Bleed It Out.mp3",
+"15 - Linkin Park - Given Up.mp3",
+"29 - Linkin Park - In Pieces.mp3",
+"31 - Linkin Park - New Divide.mp3",
+"33 - Linkin Park - Valentine's Day.mp3",
+"36 - Linkin Park - Hands Held High.mp3",
+
+"17 - JAY-Z - Numb _ Encore.mp3",
+"35 - JAY-Z - Dirt Off Your Shoulder.mp3"
+
 ];
 
 let current = 0;
@@ -175,7 +188,8 @@ function buildPlaylist(){
 buildPlaylist();
 loadSong(current);
 
-/* ===== REAL VISUALIZER ===== */
+
+/* ===== VISUALIZER ===== */
 
 const canvas = document.getElementById("visualizer");
 const ctx = canvas.getContext("2d");
@@ -197,7 +211,6 @@ const dataArray = new Uint8Array(bufferLength);
 
 function animate(){
     requestAnimationFrame(animate);
-
     analyser.getByteFrequencyData(dataArray);
 
     ctx.fillStyle = "black";
