@@ -6,119 +6,124 @@
 
 <style>
 body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:radial-gradient(circle at center, #2a0000, black);
-    color:white;
-    text-align:center;
+margin:0;
+font-family:Arial;
+background:radial-gradient(circle,#300000,black);
+color:white;
+text-align:center;
+overflow-x:hidden;
 }
 
-/* HEADER */
 .topbar{
-    padding:15px;
-    font-size:22px;
-    letter-spacing:4px;
-    color:red;
-    text-shadow:0 0 15px red;
+padding:15px;
+font-size:22px;
+letter-spacing:4px;
+color:red;
+text-shadow:0 0 20px red;
 }
 
-/* ===== ALBUM + PERFECT CENTERED ROTATING TEXT ===== */
+/* ===== ALBUM + ROTATING TEXT ===== */
 
 .album-wrapper{
-    position:relative;
-    width:260px;
-    height:260px;
-    margin:20px auto;
+position:relative;
+width:260px;
+height:260px;
+margin:20px auto;
 }
 
 .rotating-ring{
-    position:absolute;
-    width:260px;
-    height:260px;
-    animation:spin 12s linear infinite;
+position:absolute;
+width:260px;
+height:260px;
+animation:spin 12s linear infinite;
 }
 
 .rotating-ring svg{
-    width:100%;
-    height:100%;
+width:100%;
+height:100%;
 }
 
 .album{
-    position:absolute;
-    top:30px;
-    left:30px;
-    width:200px;
-    height:200px;
-    border-radius:50%;
-    overflow:hidden;
-    box-shadow:0 0 40px red;
+position:absolute;
+top:30px;
+left:30px;
+width:200px;
+height:200px;
+border-radius:50%;
+overflow:hidden;
+box-shadow:0 0 40px red;
 }
 
 #cover{
-    width:100%;
-    height:100%;
-    object-fit:cover;
+width:100%;
+height:100%;
+object-fit:cover;
 }
 
 @keyframes spin{
-    from{transform:rotate(0deg);}
-    to{transform:rotate(360deg);}
-}
-
-/* TITLE */
-#title{
-    margin:15px;
-    font-size:15px;
+from{transform:rotate(0deg);}
+to{transform:rotate(360deg);}
 }
 
 /* CONTROLS */
+
 .controls button{
-    background:rgba(255,0,0,0.15);
-    border:none;
-    color:white;
-    font-size:22px;
-    margin:8px;
-    padding:12px 16px;
-    border-radius:12px;
-    box-shadow:0 0 15px red;
+background:rgba(255,0,0,0.2);
+border:none;
+color:white;
+font-size:22px;
+margin:10px;
+padding:12px 16px;
+border-radius:15px;
+box-shadow:0 0 15px red;
 }
 
 .controls button:hover{
-    background:red;
+background:red;
+}
+
+/* VISUALIZER */
+
+canvas{
+width:100%;
+height:140px;
+margin-top:20px;
 }
 
 /* SEARCH */
+
 .search-box{
-    width:85%;
-    padding:10px;
-    margin:15px auto;
-    display:block;
-    border:none;
-    border-radius:15px;
-    background:rgba(255,255,255,0.1);
-    color:white;
+width:85%;
+padding:10px;
+margin:15px auto;
+display:block;
+border:none;
+border-radius:20px;
+background:rgba(255,255,255,0.1);
+color:white;
 }
 
 /* PLAYLIST */
+
 .playlist{
-    width:90%;
-    margin:10px auto;
-    max-height:300px;
-    overflow-y:auto;
+width:90%;
+margin:auto;
+max-height:300px;
+overflow-y:auto;
 }
 
 .song{
-    padding:8px;
-    border-bottom:1px solid #222;
-    cursor:pointer;
+padding:8px;
+border-bottom:1px solid #222;
+cursor:pointer;
 }
 
 .song:hover{
-    background:#111;
+background:#111;
 }
 
 .song.active{
-    color:red;
+color:red;
 }
 </style>
 </head>
@@ -129,36 +134,38 @@ body{
 
 <div class="album-wrapper">
 
-    <div class="rotating-ring">
-        <svg viewBox="0 0 260 260">
-            <defs>
-                <path id="circlePath"
-                    d="M130,130
-                       m-115,0
-                       a115,115 0 1,1 230,0
-                       a115,115 0 1,1 -230,0"/>
-            </defs>
-            <text fill="red" font-size="16" letter-spacing="3">
-                <textPath href="#circlePath">
-                    • POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
-                </textPath>
-            </text>
-        </svg>
-    </div>
+<div class="rotating-ring">
+<svg viewBox="0 0 260 260">
+<defs>
+<path id="circlePath"
+d="M130,130
+m-115,0
+a115,115 0 1,1 230,0
+a115,115 0 1,1 -230,0"/>
+</defs>
+<text fill="red" font-size="15" letter-spacing="3">
+<textPath href="#circlePath">
+• POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
+</textPath>
+</text>
+</svg>
+</div>
 
-    <div class="album">
-        <img id="cover" src="https://picsum.photos/400/400?random=1">
-    </div>
+<div class="album">
+<img id="cover" src="https://picsum.photos/400/400?random=1">
+</div>
 
 </div>
 
 <div id="title">Loading...</div>
 
 <div class="controls">
-    <button onclick="prevSong()">⏮</button>
-    <button onclick="playPause()">▶</button>
-    <button onclick="nextSong()">⏭</button>
+<button onclick="prevSong()">⏮</button>
+<button onclick="playPause()">▶</button>
+<button onclick="nextSong()">⏭</button>
 </div>
+
+<canvas id="visualizer"></canvas>
 
 <input type="text" id="search" class="search-box" placeholder="Search song...">
 
@@ -170,12 +177,26 @@ body{
 
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
+/* ==== ILAGAY MO DITO LAHAT NG SONG FILE NAMES MO ==== */
+
 const songs=[
+
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "10 - Avenged Sevenfold - Unholy Confessions.mp3",
+"13 - Avenged Sevenfold - Seize the Day.mp3",
+"14 - Avenged Sevenfold - Nobody.mp3",
+"18 - Avenged Sevenfold - Blinded in Chains.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
+"37 - Avenged Sevenfold - Crossroads.mp3",
+
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
-"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3"
+"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
+"07 - Red Hot Chili Peppers - Otherside.mp3",
+"08 - Red Hot Chili Peppers - By the Way.mp3",
+"09 - Red Hot Chili Peppers - Dani California.mp3",
+"11 - Red Hot Chili Peppers - Dark Necessities.mp3"
+
 ];
 
 let filteredSongs=[...songs];
@@ -187,57 +208,102 @@ const playlistDiv=document.getElementById("playlist");
 const cover=document.getElementById("cover");
 
 function loadSong(i){
-    audio.src=encodeURI(repoBase+filteredSongs[i]);
-    title.innerText=filteredSongs[i];
-    cover.src="https://picsum.photos/400/400?random="+Math.random();
-    highlight();
+audio.src=encodeURI(repoBase+filteredSongs[i]);
+title.innerText=filteredSongs[i];
+cover.src="https://picsum.photos/400/400?random="+Math.random();
+highlight();
 }
 
 function playPause(){
-    if(audio.paused) audio.play();
-    else audio.pause();
+if(audio.paused){
+audio.play();
+initVisualizer();
+}else audio.pause();
 }
 
 function nextSong(){
-    current++;
-    if(current>=filteredSongs.length) current=0;
-    loadSong(current);
-    audio.play();
+current++;
+if(current>=filteredSongs.length) current=0;
+loadSong(current);
+audio.play();
 }
 
 function prevSong(){
-    current--;
-    if(current<0) current=filteredSongs.length-1;
-    loadSong(current);
-    audio.play();
+current--;
+if(current<0) current=filteredSongs.length-1;
+loadSong(current);
+audio.play();
 }
 
 audio.addEventListener("ended",nextSong);
 
 function highlight(){
-    document.querySelectorAll(".song").forEach((el,i)=>{
-        el.classList.toggle("active",i===current);
-    });
+document.querySelectorAll(".song").forEach((el,i)=>{
+el.classList.toggle("active",i===current);
+});
 }
 
 function buildPlaylist(){
-    playlistDiv.innerHTML="";
-    filteredSongs.forEach((song,i)=>{
-        const div=document.createElement("div");
-        div.className="song";
-        div.innerText=song;
-        div.onclick=()=>{current=i;loadSong(i);audio.play();};
-        playlistDiv.appendChild(div);
-    });
+playlistDiv.innerHTML="";
+filteredSongs.forEach((song,i)=>{
+const div=document.createElement("div");
+div.className="song";
+div.innerText=song;
+div.onclick=()=>{current=i;loadSong(i);audio.play();};
+playlistDiv.appendChild(div);
+});
 }
 
 document.getElementById("search").addEventListener("input",e=>{
-    const val=e.target.value.toLowerCase();
-    filteredSongs=songs.filter(s=>s.toLowerCase().includes(val));
-    current=0;
-    buildPlaylist();
-    if(filteredSongs.length>0) loadSong(0);
+const val=e.target.value.toLowerCase();
+filteredSongs=songs.filter(s=>s.toLowerCase().includes(val));
+current=0;
+buildPlaylist();
+if(filteredSongs.length>0) loadSong(0);
 });
+
+/* ===== VISUALIZER ===== */
+
+let audioCtx, analyser, source, dataArray;
+
+function initVisualizer(){
+if(audioCtx) return;
+
+audioCtx=new AudioContext();
+analyser=audioCtx.createAnalyser();
+source=audioCtx.createMediaElementSource(audio);
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+analyser.fftSize=256;
+const bufferLength=analyser.frequencyBinCount;
+dataArray=new Uint8Array(bufferLength);
+
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=140;
+
+function draw(){
+requestAnimationFrame(draw);
+analyser.getByteFrequencyData(dataArray);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let barWidth=(canvas.width/bufferLength)*2.5;
+let x=0;
+
+for(let i=0;i<bufferLength;i++){
+let barHeight=dataArray[i];
+let r=barHeight+25;
+let g=250*(i/bufferLength);
+let b=50;
+ctx.fillStyle="rgb("+r+","+g+","+b+")";
+ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
+x+=barWidth+1;
+}
+}
+draw();
+}
 
 buildPlaylist();
 loadSong(current);
