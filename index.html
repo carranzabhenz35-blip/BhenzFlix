@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>BhenzFlix DJ Mode</title>
+<title>BhenzFlix Music</title>
 
 <style>
 body{
@@ -11,6 +11,7 @@ font-family:Arial;
 background:radial-gradient(circle,#300000,black);
 color:white;
 text-align:center;
+overflow-x:hidden;
 }
 
 .topbar{
@@ -77,14 +78,55 @@ cursor:pointer;
 background:red;
 }
 
-/* EQ */
+/* VISUALIZER */
+
+canvas{
+width:100%;
+height:140px;
+margin-top:15px;
+}
+
+/* PLAYLIST */
+
+.playlist{
+width:90%;
+margin:auto;
+max-height:200px;
+overflow-y:auto;
+}
+
+.song{
+padding:6px;
+border-bottom:1px solid #222;
+cursor:pointer;
+}
+
+.song.active{
+color:#00ffcc;
+}
+
+/* EQ PANEL */
+
+.eq-panel{
+position:fixed;
+bottom:-300px;
+left:0;
+width:100%;
+height:300px;
+background:#111;
+box-shadow:0 -5px 20px red;
+transition:0.4s;
+padding-top:20px;
+}
+
+.eq-panel.active{
+bottom:0;
+}
 
 .eq-container{
-width:90%;
-margin:20px auto;
-display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:10px;
+display:flex;
+justify-content:space-around;
+height:200px;
 }
 
 .eq{
@@ -97,37 +139,30 @@ font-size:12px;
 .eq input{
 writing-mode:bt-lr;
 -webkit-appearance:slider-vertical;
-height:120px;
+height:150px;
 }
 
-/* VISUALIZER */
+/* FLOAT BUTTON */
 
-canvas{
-width:100%;
-height:140px;
-margin-top:20px;
-}
-
-.playlist{
-width:90%;
-margin:auto;
-max-height:200px;
-overflow-y:auto;
-}
-.song{
-padding:6px;
-border-bottom:1px solid #222;
+.eq-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:red;
+color:white;
+border:none;
+padding:12px 15px;
+border-radius:50%;
+font-size:18px;
+box-shadow:0 0 15px red;
 cursor:pointer;
-}
-.song.active{
-color:#00ffcc;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topbar">🎧 BHENZFLIX DJ MODE</div>
+<div class="topbar">🎵 BHENZFLIX MUSIC</div>
 
 <div class="album-wrapper">
 <div class="rotating-ring">
@@ -157,7 +192,13 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 <button onclick="nextSong()">⏭</button>
 </div>
 
-<!-- 5 BAND EQ -->
+<canvas id="visualizer"></canvas>
+
+<div class="playlist" id="playlist"></div>
+
+<button class="eq-btn" onclick="toggleEQ()">🎚</button>
+
+<div class="eq-panel" id="eqPanel">
 <div class="eq-container">
 
 <div class="eq">
@@ -176,8 +217,8 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 </div>
 
 <div class="eq">
-<label>HIGH MID</label>
-<input type="range" min="-30" max="30" value="0" id="highmid">
+<label>HIGH</label>
+<input type="range" min="-30" max="30" value="0" id="high">
 </div>
 
 <div class="eq">
@@ -186,10 +227,7 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 </div>
 
 </div>
-
-<canvas id="visualizer"></canvas>
-
-<div class="playlist" id="playlist"></div>
+</div>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -198,11 +236,32 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs=[
-"04 - Avenged Sevenfold - Buried Alive.mp3",
-"10 - Avenged Sevenfold - Unholy Confessions.mp3",
+
 "03 - Red Hot Chili Peppers - Californication.mp3",
+"04 - Avenged Sevenfold - Buried Alive.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
-"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3"
+"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
+"07 - Linkin Park - What I've Done.mp3",
+"07 - Red Hot Chili Peppers - Otherside.mp3",
+"08 - Red Hot Chili Peppers - By the Way.mp3",
+"09 - Red Hot Chili Peppers - Dani California.mp3",
+"10 - Avenged Sevenfold - Unholy Confessions.mp3",
+"11 - Red Hot Chili Peppers - Dark Necessities.mp3",
+"13 - Avenged Sevenfold - Seize the Day.mp3",
+"13 - Linkin Park - Bleed It Out.mp3",
+"14 - Avenged Sevenfold - Nobody.mp3",
+"14 - Red Hot Chili Peppers - Under The Bridge.mp3",
+"15 - Linkin Park - Given Up.mp3",
+"17 - JAY-Z - Numb _ Encore.mp3",
+"18 - Avenged Sevenfold - Blinded in Chains.mp3",
+"29 - Linkin Park - In Pieces.mp3",
+"31 - Linkin Park - New Divide.mp3",
+"33 - Linkin Park - Valentine's Day.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
+"35 - JAY-Z - Dirt Off Your Shoulder.mp3",
+"36 - Linkin Park - Hands Held High.mp3",
+"37 - Avenged Sevenfold - Crossroads.mp3"
+
 ];
 
 let current=0;
@@ -211,50 +270,30 @@ const audio=document.getElementById("audio");
 const playBtn=document.getElementById("playBtn");
 const playlistDiv=document.getElementById("playlist");
 
-/* AUDIO SETUP */
-
 const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 const source=audioCtx.createMediaElementSource(audio);
 
-const sub=audioCtx.createBiquadFilter();
-sub.type="lowshelf";
-sub.frequency.value=60;
-
-const bass=audioCtx.createBiquadFilter();
-bass.type="lowshelf";
-bass.frequency.value=200;
-
-const mid=audioCtx.createBiquadFilter();
-mid.type="peaking";
-mid.frequency.value=1000;
-
-const highmid=audioCtx.createBiquadFilter();
-highmid.type="peaking";
-highmid.frequency.value=3000;
-
-const treble=audioCtx.createBiquadFilter();
-treble.type="highshelf";
-treble.frequency.value=8000;
+const sub=audioCtx.createBiquadFilter(); sub.type="lowshelf"; sub.frequency.value=60;
+const bass=audioCtx.createBiquadFilter(); bass.type="lowshelf"; bass.frequency.value=200;
+const mid=audioCtx.createBiquadFilter(); mid.type="peaking"; mid.frequency.value=1000;
+const high=audioCtx.createBiquadFilter(); high.type="peaking"; high.frequency.value=3000;
+const treble=audioCtx.createBiquadFilter(); treble.type="highshelf"; treble.frequency.value=8000;
 
 const analyser=audioCtx.createAnalyser();
 
 source.connect(sub);
 sub.connect(bass);
 bass.connect(mid);
-mid.connect(highmid);
-highmid.connect(treble);
+mid.connect(high);
+high.connect(treble);
 treble.connect(analyser);
 analyser.connect(audioCtx.destination);
-
-/* SLIDER EVENTS */
 
 document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
 document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
 document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
-document.getElementById("highmid").oninput=e=>highmid.gain.value=e.target.value;
+document.getElementById("high").oninput=e=>high.gain.value=e.target.value;
 document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
-
-/* PLAYER */
 
 function loadSong(i){
 audio.src=encodeURI(repoBase+songs[i]);
@@ -289,8 +328,6 @@ playBtn.innerText="⏸";
 
 audio.addEventListener("ended",nextSong);
 
-/* PLAYLIST */
-
 function buildPlaylist(){
 playlistDiv.innerHTML="";
 songs.forEach((song,i)=>{
@@ -307,8 +344,6 @@ document.querySelectorAll(".song").forEach((el,i)=>{
 el.classList.toggle("active",i===current);
 });
 }
-
-/* VISUALIZER */
 
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
@@ -335,6 +370,10 @@ x+=barWidth+1;
 }
 }
 draw();
+
+function toggleEQ(){
+document.getElementById("eqPanel").classList.toggle("active");
+}
 
 buildPlaylist();
 loadSong(current);
