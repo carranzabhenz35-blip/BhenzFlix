@@ -19,8 +19,7 @@ body{
     position:fixed;
     width:100%;
     height:100%;
-    background:url('bhenzskull.png') center/cover no-repeat;
-    filter:blur(40px) brightness(30%);
+    background:linear-gradient(black,#200000);
     z-index:-1;
 }
 
@@ -28,32 +27,37 @@ body{
 .topbar{
     background:#111;
     padding:15px;
-    font-size:22px;
+    font-size:20px;
     letter-spacing:4px;
     color:red;
     box-shadow:0 0 20px red;
 }
 
-/* ALBUM COVER */
+/* ALBUM */
 .album{
     width:220px;
     height:220px;
     border-radius:50%;
     margin:30px auto 20px;
-    background:url('bhenzskull.png') center/cover no-repeat;
     box-shadow:0 0 40px red;
+    overflow:hidden;
 }
 
-/* SONG TITLE */
+#cover{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+/* TITLE */
 #title{
-    font-size:20px;
+    font-size:18px;
     margin:15px;
 }
 
 /* PROGRESS */
 #progress{
-    width:80%;
-    margin:10px auto;
+    width:85%;
 }
 
 /* BUTTONS */
@@ -61,7 +65,7 @@ body{
     background:none;
     border:none;
     color:white;
-    font-size:30px;
+    font-size:28px;
     margin:10px 20px;
 }
 
@@ -84,25 +88,30 @@ body{
 .equalizer{
     display:flex;
     justify-content:center;
+    align-items:flex-end;
+    height:60px;
     margin:15px 0;
 }
 
 .bar{
     width:6px;
-    height:25px;
-    background:red;
+    height:20px;
     margin:3px;
-    animation:bounce 1s infinite ease-in-out;
+    animation:bounce 0.8s infinite ease-in-out;
+    box-shadow:0 0 10px currentColor;
 }
 
-.bar:nth-child(2){animation-delay:.2s;}
-.bar:nth-child(3){animation-delay:.4s;}
-.bar:nth-child(4){animation-delay:.6s;}
-.bar:nth-child(5){animation-delay:.8s;}
+.bar:nth-child(1){ background:#ff0000; }
+.bar:nth-child(2){ background:#ff7300; }
+.bar:nth-child(3){ background:#ffee00; }
+.bar:nth-child(4){ background:#00ff2a; }
+.bar:nth-child(5){ background:#00c3ff; }
+.bar:nth-child(6){ background:#8c00ff; }
+.bar:nth-child(7){ background:#ff00c8; }
 
 @keyframes bounce{
-    0%,100%{height:20px;}
-    50%{height:50px;}
+    0%,100%{height:15px;}
+    50%{height:60px;}
 }
 </style>
 </head>
@@ -113,7 +122,9 @@ body{
 
 <div class="topbar">🎵 BHENZFLIX MUSIC</div>
 
-<div class="album"></div>
+<div class="album">
+   <img id="cover" src="https://picsum.photos/400/400?random=1">
+</div>
 
 <div id="title">Loading...</div>
 
@@ -126,6 +137,8 @@ body{
 </div>
 
 <div class="equalizer">
+    <div class="bar"></div>
+    <div class="bar"></div>
     <div class="bar"></div>
     <div class="bar"></div>
     <div class="bar"></div>
@@ -153,10 +166,15 @@ const audio = document.getElementById("audio");
 const title = document.getElementById("title");
 const progress = document.getElementById("progress");
 const playlistDiv = document.getElementById("playlist");
+const cover = document.getElementById("cover");
 
 function loadSong(index){
     audio.src = songs[index].file;
     title.innerText = songs[index].title;
+
+    // random cover every song
+    cover.src = "https://picsum.photos/400/400?random=" + Math.random();
+
     highlight();
 }
 
