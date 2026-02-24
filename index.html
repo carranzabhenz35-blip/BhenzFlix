@@ -22,7 +22,7 @@ color:red;
 text-shadow:0 0 20px red;
 }
 
-/* ===== ALBUM + ROTATING TEXT ===== */
+/* ALBUM */
 
 .album-wrapper{
 position:relative;
@@ -38,11 +38,6 @@ height:260px;
 animation:spin 12s linear infinite;
 }
 
-.rotating-ring svg{
-width:100%;
-height:100%;
-}
-
 .album{
 position:absolute;
 top:30px;
@@ -54,6 +49,10 @@ overflow:hidden;
 box-shadow:0 0 40px red;
 }
 
+.album.playing{
+animation:vinyl 6s linear infinite;
+}
+
 #cover{
 width:100%;
 height:100%;
@@ -61,6 +60,11 @@ object-fit:cover;
 }
 
 @keyframes spin{
+from{transform:rotate(0deg);}
+to{transform:rotate(360deg);}
+}
+
+@keyframes vinyl{
 from{transform:rotate(0deg);}
 to{transform:rotate(360deg);}
 }
@@ -82,12 +86,20 @@ box-shadow:0 0 15px red;
 background:red;
 }
 
+/* PROGRESS */
+
+#progress{
+width:85%;
+margin:10px auto;
+display:block;
+}
+
 /* VISUALIZER */
 
 canvas{
 width:100%;
 height:140px;
-margin-top:20px;
+margin-top:15px;
 }
 
 /* SEARCH */
@@ -151,13 +163,15 @@ a115,115 0 1,1 -230,0"/>
 </svg>
 </div>
 
-<div class="album">
+<div class="album" id="album">
 <img id="cover" src="https://picsum.photos/400/400?random=1">
 </div>
 
 </div>
 
 <div id="title">Loading...</div>
+
+<input type="range" id="progress" value="0">
 
 <div class="controls">
 <button onclick="prevSong()">⏮</button>
@@ -176,8 +190,6 @@ a115,115 0 1,1 -230,0"/>
 <script>
 
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
-
-/* ==== ILAGAY MO DITO LAHAT NG SONG FILE NAMES MO ==== */
 
 const songs=[
 
@@ -206,6 +218,8 @@ const audio=document.getElementById("audio");
 const title=document.getElementById("title");
 const playlistDiv=document.getElementById("playlist");
 const cover=document.getElementById("cover");
+const album=document.getElementById("album");
+const progress=document.getElementById("progress");
 
 function loadSong(i){
 audio.src=encodeURI(repoBase+filteredSongs[i]);
@@ -217,8 +231,12 @@ highlight();
 function playPause(){
 if(audio.paused){
 audio.play();
+album.classList.add("playing");
 initVisualizer();
-}else audio.pause();
+}else{
+audio.pause();
+album.classList.remove("playing");
+}
 }
 
 function nextSong(){
@@ -226,6 +244,7 @@ current++;
 if(current>=filteredSongs.length) current=0;
 loadSong(current);
 audio.play();
+album.classList.add("playing");
 }
 
 function prevSong(){
@@ -233,9 +252,18 @@ current--;
 if(current<0) current=filteredSongs.length-1;
 loadSong(current);
 audio.play();
+album.classList.add("playing");
 }
 
 audio.addEventListener("ended",nextSong);
+
+audio.addEventListener("timeupdate",()=>{
+progress.value=(audio.currentTime/audio.duration)*100 || 0;
+});
+
+progress.addEventListener("input",()=>{
+audio.currentTime=(progress.value/100)*audio.duration;
+});
 
 function highlight(){
 document.querySelectorAll(".song").forEach((el,i)=>{
@@ -249,7 +277,7 @@ filteredSongs.forEach((song,i)=>{
 const div=document.createElement("div");
 div.className="song";
 div.innerText=song;
-div.onclick=()=>{current=i;loadSong(i);audio.play();};
+div.onclick=()=>{current=i;loadSong(i);audio.play();album.classList.add("playing");};
 playlistDiv.appendChild(div);
 });
 }
@@ -262,7 +290,7 @@ buildPlaylist();
 if(filteredSongs.length>0) loadSong(0);
 });
 
-/* ===== VISUALIZER ===== */
+/* VISUALIZER */
 
 let audioCtx, analyser, source, dataArray;
 
@@ -295,8 +323,8 @@ let x=0;
 for(let i=0;i<bufferLength;i++){
 let barHeight=dataArray[i];
 let r=barHeight+25;
-let g=250*(i/bufferLength);
-let b=50;
+let g=200*(i/bufferLength);
+let b=150;
 ctx.fillStyle="rgb("+r+","+g+","+b+")";
 ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
 x+=barWidth+1;
