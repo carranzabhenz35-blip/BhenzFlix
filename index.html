@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 <title>BhenzFlix Music</title>
 
 <style>
@@ -11,196 +11,213 @@ body{
     background:black;
     color:white;
     text-align:center;
+    overflow-x:hidden;
+}
+
+/* BLUR BACKGROUND */
+#bg{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:url('bhenzskull.png') center/cover no-repeat;
+    filter:blur(40px) brightness(30%);
+    z-index:-1;
 }
 
 /* TOP BAR */
 .topbar{
-    padding:20px;
-    font-size:22px;
-    font-weight:bold;
-    letter-spacing:5px;
-    color:red;
     background:#111;
+    padding:15px;
+    font-size:22px;
+    letter-spacing:4px;
+    color:red;
     box-shadow:0 0 20px red;
 }
 
-/* ALBUM */
+/* ALBUM COVER */
 .album{
-    width:200px;
-    height:200px;
+    width:220px;
+    height:220px;
     border-radius:50%;
-    margin:20px auto;
-    background:radial-gradient(circle, #550000, #000);
-    box-shadow:0 0 30px red;
+    margin:30px auto 20px;
+    background:url('bhenzskull.png') center/cover no-repeat;
+    box-shadow:0 0 40px red;
+}
+
+/* SONG TITLE */
+#title{
+    font-size:20px;
+    margin:15px;
 }
 
 /* PROGRESS */
-.progress{
-    width:90%;
-    height:6px;
-    background:#333;
-    margin:15px auto;
-    border-radius:5px;
-    overflow:hidden;
+#progress{
+    width:80%;
+    margin:10px auto;
 }
 
-.progress-bar{
-    height:6px;
-    width:0%;
-    background:red;
-}
-
-/* CONTROLS */
-.btn{
+/* BUTTONS */
+.controls button{
     background:none;
     border:none;
     color:white;
-    font-size:28px;
-    margin:10px;
-    cursor:pointer;
+    font-size:30px;
+    margin:10px 20px;
 }
 
 /* PLAYLIST */
 .playlist{
-    margin-top:20px;
-    border-top:1px solid #333;
+    width:90%;
+    margin:20px auto;
 }
 
 .song{
     padding:12px;
-    border-bottom:1px solid #222;
-    cursor:pointer;
+    border-bottom:1px solid rgba(255,255,255,0.2);
 }
 
-.song:hover{background:#111;}
-.active{color:red;}
+.song.active{
+    color:red;
+}
+
+/* EQUALIZER */
+.equalizer{
+    display:flex;
+    justify-content:center;
+    margin:15px 0;
+}
+
+.bar{
+    width:6px;
+    height:25px;
+    background:red;
+    margin:3px;
+    animation:bounce 1s infinite ease-in-out;
+}
+
+.bar:nth-child(2){animation-delay:.2s;}
+.bar:nth-child(3){animation-delay:.4s;}
+.bar:nth-child(4){animation-delay:.6s;}
+.bar:nth-child(5){animation-delay:.8s;}
+
+@keyframes bounce{
+    0%,100%{height:20px;}
+    50%{height:50px;}
+}
 </style>
 </head>
 
 <body>
 
+<div id="bg"></div>
+
 <div class="topbar">🎵 BHENZFLIX MUSIC</div>
 
 <div class="album"></div>
 
-<h3 id="title">Now Playing</h3>
+<div id="title">Loading...</div>
 
-<div class="progress">
-<div id="progressBar" class="progress-bar"></div>
+<input type="range" id="progress" value="0">
+
+<div class="controls">
+    <button onclick="prevSong()">⏮</button>
+    <button onclick="playPause()">▶</button>
+    <button onclick="nextSong()">⏭</button>
 </div>
 
-<div>
-<button class="btn" onclick="prevSong()">⏮</button>
-<button class="btn" onclick="togglePlay()">▶</button>
-<button class="btn" onclick="nextSong()">⏭</button>
+<div class="equalizer">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
 </div>
 
 <div class="playlist" id="playlist"></div>
 
-<audio id="player"></audio>
+<audio id="audio"></audio>
 
 <script>
-var songs=[
-{
-title:"Buried Alive",
-file:"04 - Avenged Sevenfold - Buried Alive.mp3"
-},
-{
-title:"Unholy Confessions",
-file:"10 - Avenged Sevenfold - Unholy Confessions.mp3"
-},
-{
-title:"Seize the Day",
-file:"13 - Avenged Sevenfold - Seize the Day.mp3"
-},
-{
-title:"Nobody",
-file:"14 - Avenged Sevenfold - Nobody.mp3"
-},
-{
-title:"Blinded in Chains",
-file:"18 - Avenged Sevenfold - Blinded in Chains.mp3"
-},
-{
-title:"4:00 AM",
-file:"35 - Avenged Sevenfold - 4_00 AM.mp3"
-},
-{
-title:"Crossroads",
-file:"37 - Avenged Sevenfold - Crossroads.mp3"
-}
+const songs = [
+{title:"Buried Alive - A7X", file:"04 - Avenged Sevenfold - Buried Alive.mp3"},
+{title:"Unholy Confessions - A7X", file:"10 - Avenged Sevenfold - Unholy Confessions.mp3"},
+{title:"Seize The Day - A7X", file:"13 - Avenged Sevenfold - Seize the Day.mp3"},
+{title:"Nobody - A7X", file:"14 - Avenged Sevenfold - Nobody.mp3"},
+{title:"Blinded in Chains - A7X", file:"18 - Avenged Sevenfold - Blinded in Chains.mp3"},
+{title:"4:00 AM - A7X", file:"35 - Avenged Sevenfold - 4_00 AM.mp3"},
+{title:"Crossroads - A7X", file:"37 - Avenged Sevenfold - Crossroads.mp3"}
 ];
 
-var currentIndex=0;
-var player=document.getElementById("player");
-var title=document.getElementById("title");
-var progressBar=document.getElementById("progressBar");
-var playlistDiv=document.getElementById("playlist");
+let current = 0;
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const progress = document.getElementById("progress");
+const playlistDiv = document.getElementById("playlist");
 
-function loadPlaylist(){
-playlistDiv.innerHTML="";
-songs.forEach(function(song,index){
-var div=document.createElement("div");
-div.className="song";
-div.innerText=song.title;
-div.onclick=function(){
-currentIndex=index;
-playSong();
-};
-playlistDiv.appendChild(div);
-});
+function loadSong(index){
+    audio.src = songs[index].file;
+    title.innerText = songs[index].title;
+    highlight();
 }
 
-function playSong(){
-player.src=songs[currentIndex].file;
-title.innerText=songs[currentIndex].title;
-player.play();
-updateActive();
-}
-
-function togglePlay(){
-if(player.paused){
-player.play();
-}else{
-player.pause();
-}
+function playPause(){
+    if(audio.paused){
+        audio.play();
+    } else {
+        audio.pause();
+    }
 }
 
 function nextSong(){
-currentIndex++;
-if(currentIndex>=songs.length){
-currentIndex=0;
-}
-playSong();
+    current++;
+    if(current >= songs.length) current = 0;
+    loadSong(current);
+    audio.play();
 }
 
 function prevSong(){
-currentIndex--;
-if(currentIndex<0){
-currentIndex=songs.length-1;
-}
-playSong();
-}
-
-function updateActive(){
-var items=document.querySelectorAll(".song");
-items.forEach(item=>item.classList.remove("active"));
-items[currentIndex].classList.add("active");
+    current--;
+    if(current < 0) current = songs.length-1;
+    loadSong(current);
+    audio.play();
 }
 
-player.addEventListener("timeupdate",function(){
-if(player.duration){
-var percent=(player.currentTime/player.duration)*100;
-progressBar.style.width=percent+"%";
-}
+audio.addEventListener("timeupdate",()=>{
+    progress.value = (audio.currentTime / audio.duration) * 100;
 });
 
-/* AUTO NEXT */
-player.onended=function(){
-nextSong();
-};
+progress.addEventListener("input",()=>{
+    audio.currentTime = (progress.value / 100) * audio.duration;
+});
 
-loadPlaylist();
+audio.addEventListener("ended",()=>{
+    nextSong();
+});
+
+function highlight(){
+    const items = document.querySelectorAll(".song");
+    items.forEach((el,i)=>{
+        el.classList.remove("active");
+        if(i===current) el.classList.add("active");
+    });
+}
+
+function buildPlaylist(){
+    songs.forEach((song,index)=>{
+        const div = document.createElement("div");
+        div.classList.add("song");
+        div.innerText = song.title;
+        div.onclick = ()=>{
+            current=index;
+            loadSong(current);
+            audio.play();
+        };
+        playlistDiv.appendChild(div);
+    });
+}
+
+buildPlaylist();
+loadSong(current);
 </script>
 
 </body>
