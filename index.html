@@ -1,92 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>BhenzFlix Music</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BhenzFlix Pro</title>
 
 <style>
 body{
     margin:0;
     font-family:Arial, sans-serif;
-    background:black;
     color:white;
     text-align:center;
+    overflow:hidden;
 }
 
-header{
-    padding:20px;
+/* BLUR BACKGROUND */
+#bg{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background-size:cover;
+    background-position:center;
+    filter:blur(30px) brightness(40%);
+    z-index:-1;
+    transition:0.5s;
+}
+
+.container{
+    padding:30px;
+}
+
+.album{
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    margin:20px auto;
+    background-size:cover;
+    background-position:center;
+    box-shadow:0 0 40px red;
+}
+
+h2{
+    margin:10px 0 5px 0;
+}
+
+.controls{
+    margin-top:15px;
+}
+
+.btn{
+    background:none;
+    border:none;
+    color:white;
     font-size:28px;
-    color:red;
-    letter-spacing:5px;
+    margin:10px;
+    cursor:pointer;
 }
 
-audio{
+.progress{
     width:90%;
-    margin-top:20px;
+    height:5px;
+    background:#333;
+    margin:20px auto;
+    border-radius:5px;
+    overflow:hidden;
 }
 
-/* EQUALIZER */
+.progress-bar{
+    height:5px;
+    width:0%;
+    background:red;
+}
+
 .equalizer{
     display:flex;
     justify-content:center;
     align-items:flex-end;
-    height:120px;
-    margin-top:30px;
-    gap:6px;
+    height:60px;
+    gap:5px;
 }
 
 .bar{
-    width:10px;
-    background:linear-gradient(to top, green, yellow, red);
-    height:20px;
-    animation: bounce 1s infinite ease-in-out;
+    width:6px;
+    background:red;
+    height:10px;
+    animation:bounce 1s infinite ease-in-out;
 }
 
-.bar:nth-child(1){animation-delay:0s;}
-.bar:nth-child(2){animation-delay:0.1s;}
-.bar:nth-child(3){animation-delay:0.2s;}
-.bar:nth-child(4){animation-delay:0.3s;}
-.bar:nth-child(5){animation-delay:0.4s;}
-.bar:nth-child(6){animation-delay:0.5s;}
-.bar:nth-child(7){animation-delay:0.6s;}
-.bar:nth-child(8){animation-delay:0.7s;}
-.bar:nth-child(9){animation-delay:0.8s;}
-.bar:nth-child(10){animation-delay:0.9s;}
+.bar:nth-child(2){animation-delay:.1s;}
+.bar:nth-child(3){animation-delay:.2s;}
+.bar:nth-child(4){animation-delay:.3s;}
+.bar:nth-child(5){animation-delay:.4s;}
 
 @keyframes bounce{
-    0%{height:20px;}
-    50%{height:100px;}
-    100%{height:20px;}
+    0%,100%{height:10px;}
+    50%{height:50px;}
 }
 
-.hidden{
-    display:none;
+.playlist{
+    margin-top:20px;
+    max-height:150px;
+    overflow:auto;
 }
 
-footer{
-    margin-top:40px;
-    padding:20px;
-    color:gray;
+.song{
+    padding:10px;
+    cursor:pointer;
+    border-bottom:1px solid #333;
+}
+
+.song:hover{
+    background:#222;
+}
+
+.active{
+    color:red;
 }
 </style>
 </head>
 
 <body>
 
-<header>🎵 BHENZFLIX MUSIC</header>
+<div id="bg"></div>
 
-<h2>A Boy Brushed Red</h2>
+<div class="container">
 
-<audio id="player" controls>
-<source src="https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1" type="audio/mpeg">
-</audio>
+<div id="album" class="album"></div>
 
-<div id="eq" class="equalizer hidden">
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
+<h2 id="title">Loading...</h2>
+
+<div class="progress">
+<div id="progressBar" class="progress-bar"></div>
+</div>
+
+<div class="controls">
+<button class="btn" onclick="prevSong()">⏮</button>
+<button class="btn" onclick="togglePlay()">▶</button>
+<button class="btn" onclick="nextSong()">⏭</button>
+</div>
+
+<div class="equalizer">
 <div class="bar"></div>
 <div class="bar"></div>
 <div class="bar"></div>
@@ -94,23 +146,84 @@ footer{
 <div class="bar"></div>
 </div>
 
-<footer>© 2026 BhenzFlix Music Player</footer>
+<div class="playlist" id="playlist"></div>
+
+<audio id="player"></audio>
+
+</div>
 
 <script>
-var player = document.getElementById("player");
-var eq = document.getElementById("eq");
+var songs=[
+{
+title:"A Boy Brushed Red",
+file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1",
+cover:"https://i.imgur.com/8Km9tLL.jpg"
+}
+];
 
-player.onplay = function(){
-    eq.classList.remove("hidden");
+var currentIndex=0;
+var player=document.getElementById("player");
+var title=document.getElementById("title");
+var album=document.getElementById("album");
+var bg=document.getElementById("bg");
+var progressBar=document.getElementById("progressBar");
+var playlistDiv=document.getElementById("playlist");
+
+function loadPlaylist(){
+songs.forEach(function(song,index){
+var div=document.createElement("div");
+div.className="song";
+div.innerText=song.title;
+div.onclick=function(){
+currentIndex=index;
+playSong();
+};
+playlistDiv.appendChild(div);
+});
 }
 
-player.onpause = function(){
-    eq.classList.add("hidden");
+function playSong(){
+var song=songs[currentIndex];
+player.src=song.file;
+title.innerText=song.title;
+album.style.backgroundImage="url("+song.cover+")";
+bg.style.backgroundImage="url("+song.cover+")";
+player.play();
+updateActive();
 }
 
-player.onended = function(){
-    eq.classList.add("hidden");
+function togglePlay(){
+if(player.paused){player.play();}
+else{player.pause();}
 }
+
+function nextSong(){
+currentIndex++;
+if(currentIndex>=songs.length){currentIndex=0;}
+playSong();
+}
+
+function prevSong(){
+currentIndex--;
+if(currentIndex<0){currentIndex=songs.length-1;}
+playSong();
+}
+
+function updateActive(){
+var items=document.querySelectorAll(".song");
+items.forEach(item=>item.classList.remove("active"));
+items[currentIndex].classList.add("active");
+}
+
+player.addEventListener("timeupdate",function(){
+var percent=(player.currentTime/player.duration)*100;
+progressBar.style.width=percent+"%";
+});
+
+player.addEventListener("ended",nextSong);
+
+loadPlaylist();
+playSong();
 </script>
 
 </body>
