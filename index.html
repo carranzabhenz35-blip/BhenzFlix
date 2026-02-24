@@ -69,6 +69,7 @@ canvas{
 .song{
     padding:12px;
     border-bottom:1px solid rgba(255,255,255,0.2);
+    cursor:pointer;
 }
 
 .song.active{
@@ -99,32 +100,31 @@ canvas{
 
 <div class="playlist" id="playlist"></div>
 
-<audio id="audio" crossorigin="anonymous"></audio>
+<audio id="audio"></audio>
 
 <script>
+
+/* ====== ILAGAY MO EXACT FILENAMES DITO ====== */
 const songs = [
 
-{title:"01 - My Chemical Romance", file:"01 - My Chemical Romance - I....mp3"},
-{title:"02 - My Chemical Romance", file:"02 - My Chemical Romance - T....mp3"},
-{title:"04 - Avenged Sevenfold - Buried Alive", file:"04 - Avenged Sevenfold - Buried Alive.mp3"},
-{title:"06 - My Chemical Romance", file:"06 - My Chemical Romance - F....mp3"},
-{title:"07 - Linkin Park - What I've Done", file:"07 - Linkin Park - What I've Done.mp3"},
-{title:"10 - Avenged Sevenfold - Unholy Confessions", file:"10 - Avenged Sevenfold - Unholy Confessions.mp3"},
-{title:"13 - Avenged Sevenfold - Seize the Day", file:"13 - Avenged Sevenfold - Seize the Day.mp3"},
-{title:"13 - Linkin Park - Bleed It Out", file:"13 - Linkin Park - Bleed It Out.mp3"},
-{title:"14 - Avenged Sevenfold - Nobody", file:"14 - Avenged Sevenfold - Nobody.mp3"},
-{title:"15 - Linkin Park - Given Up", file:"15 - Linkin Park - Given Up.mp3"},
-{title:"17 - JAY-Z - Numb Encore", file:"17 - JAY-Z - Numb _ Encore.mp3"},
-{title:"18 - Avenged Sevenfold - Blinded in Chains", file:"18 - Avenged Sevenfold - Blinded in Chains.mp3"},
-{title:"29 - Linkin Park - In Pieces", file:"29 - Linkin Park - In Pieces.mp3"},
-{title:"31 - Linkin Park - New Divide", file:"31 - Linkin Park - New Divide.mp3"},
-{title:"33 - Linkin Park - Valentine's Day", file:"33 - Linkin Park - Valentine's Day.mp3"},
-{title:"35 - Avenged Sevenfold - 4:00 AM", file:"35 - Avenged Sevenfold - 4_00 AM.mp3"},
-{title:"35 - JAY-Z - Dirt Off Your Shoulder", file:"35 - JAY-Z - Dirt Off Your Shoulder.mp3"},
-{title:"36 - Linkin Park - Hands Held High", file:"36 - Linkin Park - Hands Held High.mp3"},
-{title:"37 - Avenged Sevenfold - Crossroads", file:"37 - Avenged Sevenfold - Crossroads.mp3"},
-{title:"39 - My Chemical Romance", file:"39 - My Chemical Romance - ....mp3"},
-{title:"40 - My Chemical Romance", file:"40 - My Chemical Romance - ....mp3"}
+"01 - My Chemical Romance - I’m Not Okay (I Promise).mp3",
+"02 - My Chemical Romance - Helena.mp3",
+"04 - Avenged Sevenfold - Buried Alive.mp3",
+"07 - Linkin Park - What I've Done.mp3",
+"10 - Avenged Sevenfold - Unholy Confessions.mp3",
+"13 - Avenged Sevenfold - Seize the Day.mp3",
+"13 - Linkin Park - Bleed It Out.mp3",
+"14 - Avenged Sevenfold - Nobody.mp3",
+"15 - Linkin Park - Given Up.mp3",
+"17 - JAY-Z - Numb _ Encore.mp3",
+"18 - Avenged Sevenfold - Blinded in Chains.mp3",
+"29 - Linkin Park - In Pieces.mp3",
+"31 - Linkin Park - New Divide.mp3",
+"33 - Linkin Park - Valentine's Day.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
+"35 - JAY-Z - Dirt Off Your Shoulder.mp3",
+"36 - Linkin Park - Hands Held High.mp3",
+"37 - Avenged Sevenfold - Crossroads.mp3"
 
 ];
 
@@ -136,15 +136,14 @@ const playlistDiv = document.getElementById("playlist");
 const cover = document.getElementById("cover");
 
 function loadSong(index){
-    audio.src = songs[index].file;
-    title.innerText = songs[index].title;
+    audio.src = encodeURI(songs[index]); // AUTO FIX SPECIAL CHARACTERS
+    title.innerText = songs[index];
     cover.src = "https://picsum.photos/400/400?random=" + Math.random();
     highlight();
 }
 
 function playPause(){
     if(audio.paused){
-        audioCtx.resume();
         audio.play();
     } else {
         audio.pause();
@@ -166,11 +165,15 @@ function prevSong(){
 }
 
 audio.addEventListener("timeupdate",()=>{
-    progress.value = (audio.currentTime / audio.duration) * 100;
+    if(audio.duration){
+        progress.value = (audio.currentTime / audio.duration) * 100;
+    }
 });
 
 progress.addEventListener("input",()=>{
-    audio.currentTime = (progress.value / 100) * audio.duration;
+    if(audio.duration){
+        audio.currentTime = (progress.value / 100) * audio.duration;
+    }
 });
 
 audio.addEventListener("ended",()=>{
@@ -189,7 +192,7 @@ function buildPlaylist(){
     songs.forEach((song,index)=>{
         const div = document.createElement("div");
         div.classList.add("song");
-        div.innerText = song.title;
+        div.innerText = song;
         div.onclick = ()=>{
             current=index;
             loadSong(current);
@@ -202,7 +205,8 @@ function buildPlaylist(){
 buildPlaylist();
 loadSong(current);
 
-/* REAL VISUALIZER */
+
+/* ===== REAL VISUALIZER ===== */
 const canvas = document.getElementById("visualizer");
 const ctx = canvas.getContext("2d");
 
@@ -232,17 +236,14 @@ function animate(){
 
     for(let i=0;i<bufferLength;i++){
         const barHeight = dataArray[i];
-        const r = barHeight + 25;
-        const g = 250 - barHeight;
-        const b = 150;
-
-        ctx.fillStyle = "rgb("+r+","+g+","+b+")";
+        ctx.fillStyle = "rgb("+(barHeight+50)+",0,0)";
         ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
         x += barWidth;
     }
 }
 
 animate();
+
 </script>
 
 </body>
