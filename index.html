@@ -1,57 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>BhenzFlix Music</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{
-    margin:0;
-    font-family:Arial;
-    background:black;
-    color:white;
-    text-align:center;
-}
-header{
-    padding:20px;
-    font-size:28px;
-    color:red;
-}
-.song{
-    margin:10px;
-    padding:10px;
-    background:#111;
-    cursor:pointer;
-}
-.song:hover{
-    background:red;
-}
-audio{
-    width:90%;
-    margin-top:20px;
-}
-</style>
+    <title>BhenzFlix Music</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background: radial-gradient(circle at center, #2b0000 0%, #000000 70%);
+            color:white;
+            text-align:center;
+        }
+
+        header{
+            padding:25px;
+            font-size:30px;
+            font-weight:bold;
+            color:red;
+            letter-spacing:6px;
+            box-shadow:0 0 25px red;
+        }
+
+        .container{
+            margin-top:80px;
+        }
+
+        .cover{
+            width:250px;
+            height:250px;
+            background:linear-gradient(45deg, red, black);
+            margin:auto;
+            border-radius:15px;
+            box-shadow:0 0 40px red;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:bold;
+        }
+
+        audio{
+            width:90%;
+            margin-top:30px;
+        }
+
+        footer{
+            margin-top:60px;
+            padding:20px;
+            background:black;
+            color:gray;
+            font-size:14px;
+        }
+    </style>
 </head>
 
 <body>
 
-<header>🎵 BHENZFLIX MUSIC</header>
+<header>
+    🎵 BHENZFLIX MUSIC
+</header>
 
-<h2 id="title">Select a Song</h2>
+<div class="container">
 
-<audio id="player" controls></audio>
+    <div class="cover">
+        NOW PLAYING
+    </div>
 
-<div class="song" onclick="play('crossroads.mp3','Crossroads')">Crossroads</div>
-<div class="song" onclick="play('fouram.mp3','4:00 AM')">4:00 AM</div>
-<div class="song" onclick="play('blinded.mp3','Blinded in Chains')">Blinded in Chains</div>
+    <h2>A Boy Brushed Red Living In Black And White</h2>
 
-<script>
-function play(file,title){
-    var p=document.getElementById("player");
-    document.getElementById("title").innerText="Now Playing: "+title;
-    p.src=file;
-    p.play();
-}
-</script>
+    <audio controls>
+        <source src="https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+
+</div>
+
+<footer>
+    © 2026 BhenzFlix Music Player
+</footer>
 
 </body>
 </html>
