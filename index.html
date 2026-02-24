@@ -8,34 +8,21 @@
 body{
 margin:0;
 font-family:Arial;
+background:radial-gradient(circle,#300000,black);
 color:white;
 text-align:center;
 overflow-x:hidden;
-background:black;
-}
-
-#bg{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background-size:cover;
-background-position:center;
-filter:blur(25px) brightness(40%);
-z-index:-1;
-transition:0.5s;
 }
 
 .topbar{
 padding:15px;
 font-size:22px;
 letter-spacing:4px;
-color:white;
-text-shadow:0 0 15px red;
+color:red;
+text-shadow:0 0 20px red;
 }
 
-/* ALBUM */
+/* ALBUM + RING */
 
 .album-wrapper{
 position:relative;
@@ -51,6 +38,11 @@ height:260px;
 animation:spin 12s linear infinite;
 }
 
+.rotating-ring svg{
+width:100%;
+height:100%;
+}
+
 .album{
 position:absolute;
 top:30px;
@@ -59,7 +51,7 @@ width:200px;
 height:200px;
 border-radius:50%;
 overflow:hidden;
-box-shadow:0 0 40px black;
+box-shadow:0 0 40px red;
 }
 
 #cover{
@@ -76,21 +68,20 @@ to{transform:rotate(360deg);}
 /* CONTROLS */
 
 .controls button{
-background:rgba(255,255,255,0.15);
+background:rgba(255,0,0,0.2);
 border:none;
 color:white;
 font-size:20px;
 margin:8px;
-padding:10px 15px;
+padding:12px 16px;
 border-radius:15px;
+box-shadow:0 0 15px red;
+cursor:pointer;
 }
 
 .controls button:hover{
-background:white;
-color:black;
+background:red;
 }
-
-/* PROGRESS */
 
 #progress{
 width:85%;
@@ -101,6 +92,12 @@ display:block;
 .time{
 font-size:12px;
 opacity:0.8;
+}
+
+canvas{
+width:100%;
+height:140px;
+margin-top:15px;
 }
 
 /* SEARCH */
@@ -116,20 +113,17 @@ background:rgba(255,255,255,0.1);
 color:white;
 }
 
-/* PLAYLIST */
-
 #toggleBtn{
-background:rgba(255,255,255,0.2);
+background:rgba(255,0,0,0.2);
 border:none;
 color:white;
 padding:8px 20px;
 border-radius:20px;
 margin-top:10px;
+cursor:pointer;
 }
 
-.hidden{
-display:none;
-}
+.hidden{display:none;}
 
 .playlist{
 width:90%;
@@ -140,12 +134,12 @@ overflow-y:auto;
 
 .song{
 padding:8px;
-border-bottom:1px solid rgba(255,255,255,0.1);
+border-bottom:1px solid #222;
 cursor:pointer;
 }
 
 .song:hover{
-background:rgba(255,255,255,0.1);
+background:#111;
 }
 
 .song.active{
@@ -155,8 +149,6 @@ color:#00ffcc;
 </head>
 
 <body>
-
-<div id="bg"></div>
 
 <div class="topbar">🎵 BHENZFLIX MUSIC</div>
 
@@ -171,7 +163,7 @@ m-115,0
 a115,115 0 1,1 230,0
 a115,115 0 1,1 -230,0"/>
 </defs>
-<text fill="white" font-size="14" letter-spacing="3">
+<text fill="red" font-size="15" letter-spacing="3">
 <textPath href="#circlePath">
 • POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
 </textPath>
@@ -180,7 +172,7 @@ a115,115 0 1,1 -230,0"/>
 </div>
 
 <div class="album">
-<img id="cover">
+<img id="cover" src="https://picsum.photos/400/400?random=1">
 </div>
 
 </div>
@@ -196,9 +188,12 @@ a115,115 0 1,1 -230,0"/>
 
 <div class="controls">
 <button onclick="prevSong()">⏮</button>
-<button onclick="playPause()">▶</button>
+<button id="playBtn" onclick="togglePlay()">▶</button>
 <button onclick="nextSong()">⏭</button>
+<button onclick="toggleBass()">🔊 Bass</button>
 </div>
+
+<canvas id="visualizer"></canvas>
 
 <input type="text" id="search" class="search-box" placeholder="Search song...">
 
@@ -212,52 +207,67 @@ a115,115 0 1,1 -230,0"/>
 
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
-/* ALBUM COVERS PER ARTIST */
-const covers={
-"A7X":"https://i.imgur.com/0XKznzF.jpg",
-"RHCP":"https://i.imgur.com/1bX5QH6.jpg"
-};
-
 const songs=[
-{file:"04 - Avenged Sevenfold - Buried Alive.mp3", artist:"A7X"},
-{file:"10 - Avenged Sevenfold - Unholy Confessions.mp3", artist:"A7X"},
-{file:"03 - Red Hot Chili Peppers - Californication.mp3", artist:"RHCP"},
-{file:"05 - Red Hot Chili Peppers - Scar Tissue.mp3", artist:"RHCP"},
-{file:"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3", artist:"RHCP"}
+"04 - Avenged Sevenfold - Buried Alive.mp3",
+"10 - Avenged Sevenfold - Unholy Confessions.mp3",
+"13 - Avenged Sevenfold - Seize the Day.mp3",
+"14 - Avenged Sevenfold - Nobody.mp3",
+"18 - Avenged Sevenfold - Blinded in Chains.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
+"37 - Avenged Sevenfold - Crossroads.mp3",
+
+"03 - Red Hot Chili Peppers - Californication.mp3",
+"05 - Red Hot Chili Peppers - Scar Tissue.mp3",
+"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3"
 ];
 
 let filteredSongs=[...songs];
 let current=0;
+let bassOn=false;
 
 const audio=document.getElementById("audio");
-const title=document.getElementById("title");
+const playBtn=document.getElementById("playBtn");
 const playlistDiv=document.getElementById("playlist");
-const cover=document.getElementById("cover");
-const bg=document.getElementById("bg");
 const progress=document.getElementById("progress");
 
+/* AUDIO CONTEXT */
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+const analyser=audioCtx.createAnalyser();
+const source=audioCtx.createMediaElementSource(audio);
+const bassFilter=audioCtx.createBiquadFilter();
+
+bassFilter.type="lowshelf";
+bassFilter.frequency.value=200;
+bassFilter.gain.value=0;
+
+source.connect(bassFilter);
+bassFilter.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+analyser.fftSize=256;
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
+
 function formatTime(sec){
-let m=Math.floor(sec/60);
-let s=Math.floor(sec%60);
+let m=Math.floor(sec/60)||0;
+let s=Math.floor(sec%60)||0;
 return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
 }
 
 function loadSong(i){
-let song=filteredSongs[i];
-audio.src=encodeURI(repoBase+song.file);
-title.innerText=song.file;
-
-cover.src=covers[song.artist];
-bg.style.backgroundImage=`url(${covers[song.artist]})`;
-
+audio.src=encodeURI(repoBase+filteredSongs[i]);
+document.getElementById("title").innerText=filteredSongs[i];
 highlight();
 }
 
-function playPause(){
+function togglePlay(){
+audioCtx.resume();
 if(audio.paused){
 audio.play();
+playBtn.innerText="⏸";
 }else{
 audio.pause();
+playBtn.innerText="▶";
 }
 }
 
@@ -266,6 +276,7 @@ current++;
 if(current>=filteredSongs.length) current=0;
 loadSong(current);
 audio.play();
+playBtn.innerText="⏸";
 }
 
 function prevSong(){
@@ -273,12 +284,19 @@ current--;
 if(current<0) current=filteredSongs.length-1;
 loadSong(current);
 audio.play();
+playBtn.innerText="⏸";
+}
+
+function toggleBass(){
+bassOn=!bassOn;
+bassFilter.gain.value=bassOn?15:0;
+alert("Bass Booster: "+(bassOn?"ON":"OFF"));
 }
 
 audio.addEventListener("ended",nextSong);
 
 audio.addEventListener("timeupdate",()=>{
-progress.value=(audio.currentTime/audio.duration)*100 || 0;
+progress.value=(audio.currentTime/audio.duration)*100||0;
 document.getElementById("currentTime").innerText=formatTime(audio.currentTime);
 document.getElementById("duration").innerText=formatTime(audio.duration);
 });
@@ -287,20 +305,21 @@ progress.addEventListener("input",()=>{
 audio.currentTime=(progress.value/100)*audio.duration;
 });
 
-function highlight(){
-document.querySelectorAll(".song").forEach((el,i)=>{
-el.classList.toggle("active",i===current);
-});
-}
-
+/* PLAYLIST */
 function buildPlaylist(){
 playlistDiv.innerHTML="";
 filteredSongs.forEach((song,i)=>{
 const div=document.createElement("div");
 div.className="song";
-div.innerText=song.file;
-div.onclick=()=>{current=i;loadSong(i);audio.play();};
+div.innerText=song;
+div.onclick=()=>{current=i;loadSong(i);audio.play();playBtn.innerText="⏸";};
 playlistDiv.appendChild(div);
+});
+}
+
+function highlight(){
+document.querySelectorAll(".song").forEach((el,i)=>{
+el.classList.toggle("active",i===current);
 });
 }
 
@@ -308,13 +327,31 @@ function togglePlaylist(){
 playlistDiv.classList.toggle("hidden");
 }
 
-document.getElementById("search").addEventListener("input",e=>{
-const val=e.target.value.toLowerCase();
-filteredSongs=songs.filter(s=>s.file.toLowerCase().includes(val));
-current=0;
-buildPlaylist();
-if(filteredSongs.length>0) loadSong(0);
-});
+/* VISUALIZER */
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=140;
+
+function draw(){
+requestAnimationFrame(draw);
+analyser.getByteFrequencyData(dataArray);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let barWidth=(canvas.width/bufferLength)*2.5;
+let x=0;
+
+for(let i=0;i<bufferLength;i++){
+let barHeight=dataArray[i];
+let r=barHeight+25;
+let g=200*(i/bufferLength);
+let b=150;
+ctx.fillStyle="rgb("+r+","+g+","+b+")";
+ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
+x+=barWidth+1;
+}
+}
+draw();
 
 buildPlaylist();
 loadSong(current);
