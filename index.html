@@ -10,128 +10,78 @@ body{
     font-family:Arial, sans-serif;
     color:white;
     text-align:center;
+    background:black;
+    overflow:hidden;
 }
 
-/* BACKGROUND */
+/* SMOKE BACKGROUND */
 #bg{
     position:fixed;
     width:100%;
     height:100%;
-    background:url('skull.png') center/cover no-repeat;
-    filter:blur(40px) brightness(40%);
+    background:radial-gradient(circle at center, #330000, #000);
+    animation:smoke 8s infinite alternate;
+    z-index:-2;
+}
+
+@keyframes smoke{
+    0%{filter:blur(20px);}
+    100%{filter:blur(60px);}
+}
+
+/* LIGHTNING FLASH */
+.flash{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:white;
+    opacity:0;
+    pointer-events:none;
     z-index:-1;
 }
 
 /* TOP BAR */
 .topbar{
-    position:fixed;
-    top:0;
-    width:100%;
     padding:20px;
     font-size:22px;
     font-weight:bold;
     letter-spacing:5px;
-    background:rgba(0,0,0,0.85);
     color:red;
     text-shadow:0 0 15px red;
-    box-shadow:0 0 20px red;
-    z-index:999;
 }
 
-.container{
-    padding-top:120px;
-    padding-bottom:40px;
-}
-
+/* ALBUM */
 .album{
-    width:220px;
-    height:220px;
+    width:200px;
+    height:200px;
     border-radius:50%;
     margin:20px auto;
-    background:url('skull.png') center/cover no-repeat;
+    background:url('https://i.imgur.com/3ZQ3Z9S.png') center/cover no-repeat;
     box-shadow:0 0 40px red;
-    animation:pulse 2s infinite alternate;
 }
 
-@keyframes pulse{
-    from{ box-shadow:0 0 20px red; }
-    to{ box-shadow:0 0 50px red; }
-}
-
-.progress{
-    width:90%;
-    height:6px;
-    background:#333;
-    margin:15px auto;
-    border-radius:5px;
-    overflow:hidden;
-}
-
-.progress-bar{
-    height:6px;
-    width:0%;
-    background:red;
-}
-
-.controls{
-    margin-top:10px;
-}
-
+/* CONTROLS */
 .btn{
     background:none;
     border:none;
     color:white;
     font-size:30px;
     margin:10px;
-    cursor:pointer;
 }
 
-/* Equalizer */
-.equalizer{
-    display:flex;
-    justify-content:center;
-    align-items:flex-end;
-    height:60px;
-    gap:6px;
-    margin-top:15px;
-}
-
-.bar{
-    width:6px;
-    background:red;
-    height:10px;
-    animation:bounce 1s infinite ease-in-out;
-}
-
-.bar:nth-child(2){animation-delay:.1s;}
-.bar:nth-child(3){animation-delay:.2s;}
-.bar:nth-child(4){animation-delay:.3s;}
-.bar:nth-child(5){animation-delay:.4s;}
-
-@keyframes bounce{
-    0%,100%{height:10px;}
-    50%{height:50px;}
-}
-
-.playlist{
-    margin-top:25px;
-    max-height:220px;
-    overflow:auto;
-    border-top:1px solid #444;
-}
-
+/* PLAYLIST */
 .song{
-    padding:12px;
+    padding:10px;
+    border-bottom:1px solid #222;
     cursor:pointer;
-    border-bottom:1px solid #333;
 }
+.song:hover{background:#111;}
+.active{color:red;}
 
-.song:hover{
-    background:#222;
-}
-
-.active{
-    color:red;
+/* CANVAS VISUALIZER */
+canvas{
+    width:100%;
+    height:120px;
 }
 </style>
 </head>
@@ -139,88 +89,53 @@ body{
 <body>
 
 <div id="bg"></div>
+<div class="flash" id="flash"></div>
 
-<div class="topbar">
-🎵 BHENZFLIX MUSIC
-</div>
-
-<div class="container">
+<div class="topbar">🎵 BHENZFLIX MUSIC</div>
 
 <div class="album"></div>
 
-<h2 id="title">Now Playing</h2>
+<h3 id="title">Now Playing</h3>
 
-<div class="progress">
-<div id="progressBar" class="progress-bar"></div>
-</div>
-
-<div class="controls">
 <button class="btn" onclick="prevSong()">⏮</button>
 <button class="btn" onclick="togglePlay()">▶</button>
 <button class="btn" onclick="nextSong()">⏭</button>
-</div>
 
-<div class="equalizer">
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-</div>
+<canvas id="visualizer"></canvas>
 
-<div class="playlist" id="playlist"></div>
+<div id="playlist"></div>
 
-<audio id="player"></audio>
-
-</div>
+<audio id="player" crossorigin="anonymous"></audio>
 
 <script>
 var songs=[
 {
 title:"All That I've Got - The Used",
-file:"https://www.dropbox.com/scl/fi/wdu2alcuhrsm8awna1uj1/All-That-I-ve-Got-The-Used-320K.mp3?rlkey=anoeqb74vqikcrmmf8h0lckro&raw=1"
-},
-{
-title:"Alone - Alan Walker",
-file:"https://www.dropbox.com/scl/fi/8zjje4jpmbroy9ogbk8zz/Alone-Alan-Walker-320K.mp3?rlkey=6wnchjft0zw967ckz95fpwd1c&raw=1"
+file:"https://www.dropbox.com/scl/fi/wdu2alcuhrsm8awna1uj1/All-That-I-ve-Got-The-Used-320K.mp3?raw=1"
 },
 {
 title:"Bad Day - Daniel Powter",
-file:"https://www.dropbox.com/scl/fi/13zp82q80ap63jdiv6xuf/Bad-Day-Daniel-Powter-320K.mp3?rlkey=afa5rc15jvlpsu4xzm4vfsspg&raw=1"
-},
-{
-title:"Californication - RHCP",
-file:"https://www.dropbox.com/scl/fi/l7xgxakinjcv8toepu7a7/Californication-Red-Hot-Chili-Peppers-320K.mp3?rlkey=ynfue8o64bjz2hqd120zt7kv6&raw=1"
-},
-{
-title:"Cancer - My Chemical Romance",
-file:"https://www.dropbox.com/scl/fi/qd9lcvwz06i1kcdwnfi4s/Cancer-My-Chemical-Romance-320K.mp3?rlkey=9hm62cf3mwiawlreulkedr177&raw=1"
-},
-{
-title:"Dear God - Avenged Sevenfold",
-file:"https://www.dropbox.com/scl/fi/fputru8ctd70m3ho564px/Dear-God-Avenged-Sevenfold-320K.mp3?rlkey=qm2eeph4ljs1yrxj6r8v7il69&raw=1"
+file:"https://www.dropbox.com/scl/fi/13zp82q80ap63jdiv6xuf/Bad-Day-Daniel-Powter-320K.mp3?raw=1"
 }
 ];
 
 var currentIndex=0;
 var player=document.getElementById("player");
 var title=document.getElementById("title");
-var progressBar=document.getElementById("progressBar");
-var playlistDiv=document.getElementById("playlist");
+var playlist=document.getElementById("playlist");
+var flash=document.getElementById("flash");
 
-function loadPlaylist(){
-playlistDiv.innerHTML="";
-songs.forEach(function(song,index){
-var div=document.createElement("div");
+/* PLAYLIST LOAD */
+songs.forEach((song,index)=>{
+let div=document.createElement("div");
 div.className="song";
 div.innerText=song.title;
 div.onclick=function(){
 currentIndex=index;
 playSong();
 };
-playlistDiv.appendChild(div);
+playlist.appendChild(div);
 });
-}
 
 function playSong(){
 player.src=songs[currentIndex].file;
@@ -236,39 +151,64 @@ else{player.pause();}
 
 function nextSong(){
 currentIndex++;
-if(currentIndex>=songs.length){
-currentIndex=0;
-}
+if(currentIndex>=songs.length){currentIndex=0;}
 playSong();
 }
 
 function prevSong(){
 currentIndex--;
-if(currentIndex<0){
-currentIndex=songs.length-1;
-}
+if(currentIndex<0){currentIndex=songs.length-1;}
 playSong();
 }
 
 function updateActive(){
-var items=document.querySelectorAll(".song");
-items.forEach(item=>item.classList.remove("active"));
-items[currentIndex].classList.add("active");
+document.querySelectorAll(".song").forEach(s=>s.classList.remove("active"));
+document.querySelectorAll(".song")[currentIndex].classList.add("active");
 }
 
-player.addEventListener("timeupdate",function(){
-if(player.duration){
-var percent=(player.currentTime/player.duration)*100;
-progressBar.style.width=percent+"%";
+player.onended=function(){nextSong();}
+
+/* REAL VISUALIZER */
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=120;
+
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+const analyser=audioCtx.createAnalyser();
+const source=audioCtx.createMediaElementSource(player);
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+analyser.fftSize=256;
+
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
+
+function animate(){
+requestAnimationFrame(animate);
+analyser.getByteFrequencyData(dataArray);
+
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+let barWidth=(canvas.width/bufferLength)*2.5;
+let barHeight;
+let x=0;
+
+for(let i=0;i<bufferLength;i++){
+barHeight=dataArray[i];
+ctx.fillStyle="red";
+ctx.fillRect(x,canvas.height-barHeight/2,barWidth,barHeight/2);
+x+=barWidth+1;
 }
-});
 
-/* AUTO NEXT */
-player.onended=function(){
-nextSong();
-};
-
-loadPlaylist();
+/* Lightning flash effect */
+if(Math.max(...dataArray)>230){
+flash.style.opacity=0.4;
+setTimeout(()=>flash.style.opacity=0,100);
+}
+}
+animate();
 </script>
 
 </body>
