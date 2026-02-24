@@ -1,49 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BhenzFlix Music</title>
+    <title>BhenzFlix Music Playlist</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: radial-gradient(circle at center, #2b0000 0%, #000000 70%);
+            background: radial-gradient(circle at center, #2b0000 0%, #000 70%);
             color: white;
             text-align: center;
         }
 
         header {
-            padding: 25px;
-            font-size: 30px;
+            padding: 20px;
+            font-size: 28px;
             font-weight: bold;
             color: red;
-            letter-spacing: 6px;
-            box-shadow: 0 0 25px red;
+            letter-spacing: 5px;
+            box-shadow: 0 0 20px red;
         }
 
         .container {
-            margin-top: 100px;
+            margin-top: 50px;
         }
 
         audio {
-            width: 80%;
-            margin-top: 30px;
+            width: 85%;
+            margin-top: 20px;
         }
 
-        .btn {
-            margin-top: 20px;
-            padding: 12px 25px;
-            background: red;
-            border: none;
+        .playlist {
+            margin-top: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .song {
+            padding: 12px;
+            margin: 8px 0;
+            background: #111;
             border-radius: 5px;
-            color: white;
             cursor: pointer;
-            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .song:hover {
+            background: red;
         }
 
         footer {
-            margin-top: 60px;
+            margin-top: 50px;
             padding: 20px;
             background: black;
             color: gray;
@@ -62,16 +71,30 @@
 
     <h2>Now Playing</h2>
 
-    <audio controls>
-        <source src="song.mp3" type="audio/mpeg">
+    <audio id="audioPlayer" controls>
+        <source src="song1.mp3" type="audio/mpeg">
         Your browser does not support audio.
     </audio>
+
+    <div class="playlist">
+        <div class="song" onclick="playSong('song1.mp3')">🎶 Song 1</div>
+        <div class="song" onclick="playSong('song2.mp3')">🎶 Song 2</div>
+        <div class="song" onclick="playSong('song3.mp3')">🎶 Song 3</div>
+    </div>
 
 </div>
 
 <footer>
-    © 2026 BhenzFlix Music Player
+    © 2026 BhenzFlix Music Playlist
 </footer>
+
+<script>
+function playSong(songFile) {
+    var player = document.getElementById("audioPlayer");
+    player.src = songFile;
+    player.play();
+}
+</script>
 
 </body>
 </html>
