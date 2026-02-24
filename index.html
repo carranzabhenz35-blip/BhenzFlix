@@ -23,11 +23,11 @@ body{
 }
 
 .album{
-    width:220px;
-    height:220px;
+    width:230px;
+    height:230px;
     border-radius:50%;
     margin:30px auto 20px;
-    box-shadow:0 0 40px red;
+    box-shadow:0 0 50px red;
     overflow:hidden;
 }
 
@@ -47,6 +47,12 @@ body{
     color:white;
     font-size:28px;
     margin:10px 20px;
+}
+
+canvas{
+    width:100%;
+    height:200px;
+    display:block;
 }
 
 .playlist{
@@ -82,16 +88,17 @@ body{
     <button onclick="nextSong()">⏭</button>
 </div>
 
+<canvas id="visualizer"></canvas>
+
 <div class="playlist" id="playlist"></div>
 
-<audio id="audio"></audio>
+<audio id="audio" crossorigin="anonymous"></audio>
 
 <script>
 
 const repoBase = "https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs = [
-
 "01 - My Chemical Romance - I’m Not Okay (I Promise).mp3",
 "02 - My Chemical Romance - Helena.mp3",
 "04 - Avenged Sevenfold - Buried Alive.mp3",
@@ -100,17 +107,7 @@ const songs = [
 "13 - Avenged Sevenfold - Seize the Day.mp3",
 "13 - Linkin Park - Bleed It Out.mp3",
 "14 - Avenged Sevenfold - Nobody.mp3",
-"15 - Linkin Park - Given Up.mp3",
-"17 - JAY-Z - Numb _ Encore.mp3",
-"18 - Avenged Sevenfold - Blinded in Chains.mp3",
-"29 - Linkin Park - In Pieces.mp3",
-"31 - Linkin Park - New Divide.mp3",
-"33 - Linkin Park - Valentine's Day.mp3",
-"35 - Avenged Sevenfold - 4_00 AM.mp3",
-"35 - JAY-Z - Dirt Off Your Shoulder.mp3",
-"36 - Linkin Park - Hands Held High.mp3",
-"37 - Avenged Sevenfold - Crossroads.mp3"
-
+"15 - Linkin Park - Given Up.mp3"
 ];
 
 let current = 0;
@@ -120,8 +117,7 @@ const playlistDiv = document.getElementById("playlist");
 const cover = document.getElementById("cover");
 
 function loadSong(index){
-    const fullURL = encodeURI(repoBase + songs[index]);
-    audio.src = fullURL;
+    audio.src = encodeURI(repoBase + songs[index]);
     title.innerText = songs[index];
     cover.src = "https://picsum.photos/400/400?random=" + Math.random();
     highlight();
@@ -129,6 +125,7 @@ function loadSong(index){
 
 function playPause(){
     if(audio.paused){
+        audioCtx.resume();
         audio.play();
     } else {
         audio.pause();
@@ -177,6 +174,53 @@ function buildPlaylist(){
 
 buildPlaylist();
 loadSong(current);
+
+/* ===== REAL VISUALIZER ===== */
+
+const canvas = document.getElementById("visualizer");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = 200;
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const analyser = audioCtx.createAnalyser();
+const source = audioCtx.createMediaElementSource(audio);
+
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+analyser.fftSize = 256;
+
+const bufferLength = analyser.frequencyBinCount;
+const dataArray = new Uint8Array(bufferLength);
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    analyser.getByteFrequencyData(dataArray);
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const barWidth = (canvas.width / bufferLength);
+    let x = 0;
+
+    for(let i=0;i<bufferLength;i++){
+        const barHeight = dataArray[i];
+
+        const r = barHeight + 50;
+        const g = 255 - barHeight;
+        const b = 150;
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+
+        x += barWidth;
+    }
+}
+
+animate();
 
 </script>
 
