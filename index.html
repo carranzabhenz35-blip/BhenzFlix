@@ -10,7 +10,6 @@ body{
     font-family:Arial, sans-serif;
     color:white;
     text-align:center;
-    overflow:hidden;
 }
 
 /* BLUR BACKGROUND */
@@ -26,25 +25,25 @@ body{
 }
 
 .container{
-    padding:30px;
+    padding:20px;
 }
 
 .album{
-    width:220px;
-    height:220px;
+    width:200px;
+    height:200px;
     border-radius:50%;
     margin:20px auto;
     background-size:cover;
     background-position:center;
-    box-shadow:0 0 40px red;
+    box-shadow:0 0 30px red;
 }
 
 h2{
-    margin:10px 0 5px 0;
+    margin:10px 0;
 }
 
 .controls{
-    margin-top:15px;
+    margin-top:10px;
 }
 
 .btn{
@@ -60,7 +59,7 @@ h2{
     width:90%;
     height:5px;
     background:#333;
-    margin:20px auto;
+    margin:15px auto;
     border-radius:5px;
     overflow:hidden;
 }
@@ -77,6 +76,7 @@ h2{
     align-items:flex-end;
     height:60px;
     gap:5px;
+    margin-top:10px;
 }
 
 .bar{
@@ -98,8 +98,9 @@ h2{
 
 .playlist{
     margin-top:20px;
-    max-height:150px;
+    max-height:180px;
     overflow:auto;
+    border-top:1px solid #444;
 }
 
 .song{
@@ -158,6 +159,11 @@ var songs=[
 title:"A Boy Brushed Red",
 file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1",
 cover:"https://i.imgur.com/8Km9tLL.jpg"
+},
+{
+title:"Second Song Sample",
+file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1",
+cover:"https://i.imgur.com/8Km9tLL.jpg"
 }
 ];
 
@@ -170,6 +176,7 @@ var progressBar=document.getElementById("progressBar");
 var playlistDiv=document.getElementById("playlist");
 
 function loadPlaylist(){
+playlistDiv.innerHTML="";
 songs.forEach(function(song,index){
 var div=document.createElement("div");
 div.className="song";
@@ -216,8 +223,10 @@ items[currentIndex].classList.add("active");
 }
 
 player.addEventListener("timeupdate",function(){
+if(player.duration){
 var percent=(player.currentTime/player.duration)*100;
 progressBar.style.width=percent+"%";
+}
 });
 
 player.addEventListener("ended",nextSong);
