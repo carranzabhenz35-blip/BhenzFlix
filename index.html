@@ -27,7 +27,7 @@
         }
 
         audio {
-            width: 85%;
+            width: 90%;
             margin-top: 20px;
         }
 
@@ -73,23 +73,20 @@
 
 <div class="container">
 
-    <h2 id="nowTitle">Now Playing: Crossroads</h2>
+    <h2 id="nowTitle">Now Playing</h2>
 
-    <audio id="audioPlayer" controls>
-        <source src="crossroads.mp3" type="audio/mpeg">
-        Your browser does not support audio.
-    </audio>
+    <audio id="audioPlayer" controls></audio>
 
     <div class="playlist">
-        <div class="song active" onclick="playSong('crossroads.mp3', this, 'Crossroads')">
+        <div class="song" onclick="playSong('37%20-%20Avenged%20Sevenfold%20-%20Crossroads.mp3', this, 'Crossroads')">
             🎶 Crossroads
         </div>
 
-        <div class="song" onclick="playSong('fouram.mp3', this, '4:00 AM')">
+        <div class="song" onclick="playSong('35%20-%20Avenged%20Sevenfold%20-%204_00%20AM.mp3', this, '4:00 AM')">
             🎶 4:00 AM
         </div>
 
-        <div class="song" onclick="playSong('blinded.mp3', this, 'Blinded in Chains')">
+        <div class="song" onclick="playSong('18%20-%20Avenged%20Sevenfold%20-%20Blinded%20in%20Chains.mp3', this, 'Blinded in Chains')">
             🎶 Blinded in Chains
         </div>
     </div>
@@ -101,7 +98,7 @@
 </footer>
 
 <script>
-function playSong(songFile, element, title) {
+function playSong(file, element, title) {
     var player = document.getElementById("audioPlayer");
     var songs = document.querySelectorAll(".song");
 
@@ -110,7 +107,7 @@ function playSong(songFile, element, title) {
 
     document.getElementById("nowTitle").innerText = "Now Playing: " + title;
 
-    player.src = songFile;
+    player.src = file;
     player.play();
 }
 </script>
