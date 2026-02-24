@@ -8,91 +8,65 @@
 body{
     margin:0;
     font-family:Arial, sans-serif;
-    background: radial-gradient(circle at center, #2b0000 0%, #000 70%);
+    background:black;
     color:white;
     text-align:center;
 }
+
 header{
-    padding:25px;
-    font-size:30px;
-    font-weight:bold;
-    color:red;
-    letter-spacing:6px;
-    box-shadow:0 0 25px red;
-}
-.container{
-    margin-top:40px;
     padding:20px;
+    font-size:28px;
+    color:red;
+    letter-spacing:5px;
 }
+
 audio{
     width:90%;
     margin-top:20px;
 }
-.controls{
-    margin-top:15px;
-}
-.btn{
-    padding:10px 20px;
-    margin:5px;
-    background:red;
-    border:none;
-    color:white;
-    border-radius:5px;
-    cursor:pointer;
-}
-.btn:hover{
-    background:darkred;
-}
-.playlist{
-    margin-top:30px;
-    max-width:400px;
-    margin-left:auto;
-    margin-right:auto;
-}
-.song{
-    padding:12px;
-    margin:8px 0;
-    background:#111;
-    border-radius:5px;
-    cursor:pointer;
-}
-.song:hover{
-    background:red;
-}
-.active{
-    background:darkred !important;
-}
 
-/* VISUALIZER */
-.visualizer{
+/* EQUALIZER */
+.equalizer{
     display:flex;
     justify-content:center;
     align-items:flex-end;
-    height:80px;
-    margin-top:20px;
+    height:120px;
+    margin-top:30px;
+    gap:6px;
 }
+
 .bar{
-    width:8px;
-    margin:0 4px;
-    background:red;
+    width:10px;
+    background:linear-gradient(to top, green, yellow, red);
+    height:20px;
     animation: bounce 1s infinite ease-in-out;
 }
-.bar:nth-child(2){ animation-delay: .1s; }
-.bar:nth-child(3){ animation-delay: .2s; }
-.bar:nth-child(4){ animation-delay: .3s; }
-.bar:nth-child(5){ animation-delay: .4s; }
+
+.bar:nth-child(1){animation-delay:0s;}
+.bar:nth-child(2){animation-delay:0.1s;}
+.bar:nth-child(3){animation-delay:0.2s;}
+.bar:nth-child(4){animation-delay:0.3s;}
+.bar:nth-child(5){animation-delay:0.4s;}
+.bar:nth-child(6){animation-delay:0.5s;}
+.bar:nth-child(7){animation-delay:0.6s;}
+.bar:nth-child(8){animation-delay:0.7s;}
+.bar:nth-child(9){animation-delay:0.8s;}
+.bar:nth-child(10){animation-delay:0.9s;}
 
 @keyframes bounce{
-    0%,100%{ height:20px; }
-    50%{ height:70px; }
+    0%{height:20px;}
+    50%{height:100px;}
+    100%{height:20px;}
+}
+
+.hidden{
+    display:none;
 }
 
 footer{
-    margin-top:50px;
+    margin-top:40px;
     padding:20px;
-    background:black;
     color:gray;
-    font-size:14px;
 }
 </style>
 </head>
@@ -101,76 +75,43 @@ footer{
 
 <header>🎵 BHENZFLIX MUSIC</header>
 
-<div class="container">
+<h2>A Boy Brushed Red</h2>
 
-<h2 id="nowTitle">Now Playing</h2>
+<audio id="player" controls>
+<source src="https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1" type="audio/mpeg">
+</audio>
 
-<audio id="player" controls></audio>
-
-<div class="visualizer">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-</div>
-
-<div class="controls">
-    <button class="btn" onclick="prevSong()">⏮ Prev</button>
-    <button class="btn" onclick="nextSong()">Next ⏭</button>
-</div>
-
-<div class="playlist" id="playlist"></div>
-
+<div id="eq" class="equalizer hidden">
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
 </div>
 
 <footer>© 2026 BhenzFlix Music Player</footer>
 
 <script>
-var songs = [
-{
-title:"A Boy Brushed Red",
-file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1"
-}
-];
+var player = document.getElementById("player");
+var eq = document.getElementById("eq");
 
-var currentIndex=0;
-var player=document.getElementById("player");
-var nowTitle=document.getElementById("nowTitle");
-var playlistDiv=document.getElementById("playlist");
-
-function loadPlaylist(){
-songs.forEach(function(song,index){
-var div=document.createElement("div");
-div.className="song";
-div.innerText="🎶 "+song.title;
-div.onclick=function(){
-currentIndex=index;
-playSong();
-};
-playlistDiv.appendChild(div);
-});
+player.onplay = function(){
+    eq.classList.remove("hidden");
 }
 
-function playSong(){
-player.src=songs[currentIndex].file;
-nowTitle.innerText="Now Playing: "+songs[currentIndex].title;
-player.play();
-updateActive();
+player.onpause = function(){
+    eq.classList.add("hidden");
 }
 
-function nextSong(){
-currentIndex++;
-if(currentIndex>=songs.length){currentIndex=0;}
-playSong();
+player.onended = function(){
+    eq.classList.add("hidden");
 }
+</script>
 
-function prevSong(){
-currentIndex--;
-if(currentIndex<0){currentIndex=songs.length-1;}
-playSong();
-}
-
-function updateActive(){
-var items=document.querySelectorAll(".song");
-items.forEach(item=>item.classList.remove("active
+</body>
+</html>
