@@ -13,7 +13,6 @@ body{
     text-align:center;
 }
 
-/* TOP BAR */
 .topbar{
     background:#111;
     padding:15px;
@@ -23,7 +22,6 @@ body{
     box-shadow:0 0 20px red;
 }
 
-/* ALBUM */
 .album{
     width:220px;
     height:220px;
@@ -39,18 +37,15 @@ body{
     object-fit:cover;
 }
 
-/* TITLE */
 #title{
     font-size:18px;
     margin:15px;
 }
 
-/* PROGRESS */
 #progress{
     width:85%;
 }
 
-/* BUTTONS */
 .controls button{
     background:none;
     border:none;
@@ -59,7 +54,6 @@ body{
     margin:10px 20px;
 }
 
-/* CANVAS VISUALIZER */
 canvas{
     width:100%;
     height:150px;
@@ -67,7 +61,6 @@ canvas{
     margin-top:20px;
 }
 
-/* PLAYLIST */
 .playlist{
     width:90%;
     margin:20px auto;
@@ -102,7 +95,6 @@ canvas{
     <button onclick="nextSong()">⏭</button>
 </div>
 
-<!-- REAL VISUALIZER -->
 <canvas id="visualizer"></canvas>
 
 <div class="playlist" id="playlist"></div>
@@ -111,13 +103,29 @@ canvas{
 
 <script>
 const songs = [
-{title:"Buried Alive - A7X", file:"04 - Avenged Sevenfold - Buried Alive.mp3"},
-{title:"Unholy Confessions - A7X", file:"10 - Avenged Sevenfold - Unholy Confessions.mp3"},
-{title:"Seize The Day - A7X", file:"13 - Avenged Sevenfold - Seize the Day.mp3"},
-{title:"Nobody - A7X", file:"14 - Avenged Sevenfold - Nobody.mp3"},
-{title:"Blinded in Chains - A7X", file:"18 - Avenged Sevenfold - Blinded in Chains.mp3"},
-{title:"4:00 AM - A7X", file:"35 - Avenged Sevenfold - 4_00 AM.mp3"},
-{title:"Crossroads - A7X", file:"37 - Avenged Sevenfold - Crossroads.mp3"}
+
+{title:"01 - My Chemical Romance", file:"01 - My Chemical Romance - I....mp3"},
+{title:"02 - My Chemical Romance", file:"02 - My Chemical Romance - T....mp3"},
+{title:"04 - Avenged Sevenfold - Buried Alive", file:"04 - Avenged Sevenfold - Buried Alive.mp3"},
+{title:"06 - My Chemical Romance", file:"06 - My Chemical Romance - F....mp3"},
+{title:"07 - Linkin Park - What I've Done", file:"07 - Linkin Park - What I've Done.mp3"},
+{title:"10 - Avenged Sevenfold - Unholy Confessions", file:"10 - Avenged Sevenfold - Unholy Confessions.mp3"},
+{title:"13 - Avenged Sevenfold - Seize the Day", file:"13 - Avenged Sevenfold - Seize the Day.mp3"},
+{title:"13 - Linkin Park - Bleed It Out", file:"13 - Linkin Park - Bleed It Out.mp3"},
+{title:"14 - Avenged Sevenfold - Nobody", file:"14 - Avenged Sevenfold - Nobody.mp3"},
+{title:"15 - Linkin Park - Given Up", file:"15 - Linkin Park - Given Up.mp3"},
+{title:"17 - JAY-Z - Numb Encore", file:"17 - JAY-Z - Numb _ Encore.mp3"},
+{title:"18 - Avenged Sevenfold - Blinded in Chains", file:"18 - Avenged Sevenfold - Blinded in Chains.mp3"},
+{title:"29 - Linkin Park - In Pieces", file:"29 - Linkin Park - In Pieces.mp3"},
+{title:"31 - Linkin Park - New Divide", file:"31 - Linkin Park - New Divide.mp3"},
+{title:"33 - Linkin Park - Valentine's Day", file:"33 - Linkin Park - Valentine's Day.mp3"},
+{title:"35 - Avenged Sevenfold - 4:00 AM", file:"35 - Avenged Sevenfold - 4_00 AM.mp3"},
+{title:"35 - JAY-Z - Dirt Off Your Shoulder", file:"35 - JAY-Z - Dirt Off Your Shoulder.mp3"},
+{title:"36 - Linkin Park - Hands Held High", file:"36 - Linkin Park - Hands Held High.mp3"},
+{title:"37 - Avenged Sevenfold - Crossroads", file:"37 - Avenged Sevenfold - Crossroads.mp3"},
+{title:"39 - My Chemical Romance", file:"39 - My Chemical Romance - ....mp3"},
+{title:"40 - My Chemical Romance", file:"40 - My Chemical Romance - ....mp3"}
+
 ];
 
 let current = 0;
@@ -194,8 +202,7 @@ function buildPlaylist(){
 buildPlaylist();
 loadSong(current);
 
-/* REAL AUDIO VISUALIZER */
-
+/* REAL VISUALIZER */
 const canvas = document.getElementById("visualizer");
 const ctx = canvas.getContext("2d");
 
@@ -215,7 +222,6 @@ const dataArray = new Uint8Array(bufferLength);
 
 function animate(){
     requestAnimationFrame(animate);
-
     analyser.getByteFrequencyData(dataArray);
 
     ctx.fillStyle = "black";
