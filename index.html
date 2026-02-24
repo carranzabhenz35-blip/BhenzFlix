@@ -8,7 +8,7 @@
 body{
     margin:0;
     font-family:Arial, sans-serif;
-    background:black;
+    background:linear-gradient(black,#200000);
     color:white;
     text-align:center;
 }
@@ -23,8 +23,8 @@ body{
 }
 
 .album{
-    width:220px;
-    height:220px;
+    width:230px;
+    height:230px;
     border-radius:50%;
     margin:20px auto;
     box-shadow:0 0 40px red;
@@ -41,13 +41,13 @@ body{
     background:none;
     border:none;
     color:white;
-    font-size:26px;
-    margin:10px 15px;
+    font-size:24px;
+    margin:10px;
 }
 
 canvas{
     width:100%;
-    height:160px;
+    height:180px;
 }
 
 .search-box{
@@ -98,6 +98,8 @@ canvas{
     <button onclick="prevSong()">⏮</button>
     <button onclick="playPause()">▶</button>
     <button onclick="nextSong()">⏭</button>
+    <button onclick="toggleShuffle()">🔀</button>
+    <button onclick="toggleRepeat()">🔁</button>
 </div>
 
 <canvas id="visualizer"></canvas>
@@ -114,7 +116,6 @@ const repoBase = "https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFl
 
 const songs = [
 
-/* A7X */
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "10 - Avenged Sevenfold - Unholy Confessions.mp3",
 "13 - Avenged Sevenfold - Seize the Day.mp3",
@@ -123,34 +124,20 @@ const songs = [
 "35 - Avenged Sevenfold - 4_00 AM.mp3",
 "37 - Avenged Sevenfold - Crossroads.mp3",
 
-/* LINKIN PARK */
 "07 - Linkin Park - What I've Done.mp3",
 "13 - Linkin Park - Bleed It Out.mp3",
 "15 - Linkin Park - Given Up.mp3",
-"29 - Linkin Park - In Pieces.mp3",
-"31 - Linkin Park - New Divide.mp3",
-"33 - Linkin Park - Valentine's Day.mp3",
-"36 - Linkin Park - Hands Held High.mp3",
 
-/* JAY-Z */
-"17 - JAY-Z - Numb _ Encore.mp3",
-"35 - JAY-Z - Dirt Off Your Shoulder.mp3",
-
-/* RHCP */
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
-"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
-"07 - Red Hot Chili Peppers - Otherside.mp3",
-"08 - Red Hot Chili Peppers - By the Way.mp3",
-"09 - Red Hot Chili Peppers - Dani California.mp3",
-"11 - Red Hot Chili Peppers - Dark Necessities.mp3",
-"14 - Red Hot Chili Peppers - The Zephyr Song.mp3",
-"35 - Red Hot Chili Peppers - Under The Bridge.mp3"
+"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3"
 
 ];
 
 let filteredSongs = [...songs];
 let current = 0;
+let shuffle = false;
+let repeatMode = 0; // 0 off, 1 repeat all, 2 repeat one
 
 const audio = document.getElementById("audio");
 const title = document.getElementById("title");
@@ -166,34 +153,54 @@ function loadSong(index){
 }
 
 function playPause(){
-    if(audio.paused){
-        audioCtx.resume();
-        audio.play();
-    } else {
-        audio.pause();
-    }
+    audioCtx.resume();
+    if(audio.paused) audio.play();
+    else audio.pause();
 }
 
 function nextSong(){
-    current++;
-    if(current >= filteredSongs.length) current = 0;
+    if(shuffle){
+        current = Math.floor(Math.random()*filteredSongs.length);
+    } else {
+        current++;
+        if(current >= filteredSongs.length){
+            if(repeatMode==1) current=0;
+            else return;
+        }
+    }
     loadSong(current);
     audio.play();
 }
 
 function prevSong(){
     current--;
-    if(current < 0) current = filteredSongs.length-1;
+    if(current<0) current=filteredSongs.length-1;
     loadSong(current);
     audio.play();
 }
 
+function toggleShuffle(){
+    shuffle=!shuffle;
+    alert("Shuffle: "+(shuffle?"ON":"OFF"));
+}
+
+function toggleRepeat(){
+    repeatMode++;
+    if(repeatMode>2) repeatMode=0;
+    const modes=["Repeat OFF","Repeat ALL","Repeat ONE"];
+    alert(modes[repeatMode]);
+}
+
 audio.addEventListener("ended",()=>{
-    nextSong();
+    if(repeatMode==2){
+        audio.play();
+    } else {
+        nextSong();
+    }
 });
 
 function highlight(){
-    const items = document.querySelectorAll(".song");
+    const items=document.querySelectorAll(".song");
     items.forEach((el,i)=>{
         el.classList.remove("active");
         if(i===current) el.classList.add("active");
@@ -203,10 +210,10 @@ function highlight(){
 function buildPlaylist(){
     playlistDiv.innerHTML="";
     filteredSongs.forEach((song,index)=>{
-        const div = document.createElement("div");
+        const div=document.createElement("div");
         div.classList.add("song");
-        div.innerText = song;
-        div.onclick = ()=>{
+        div.innerText=song;
+        div.onclick=()=>{
             current=index;
             loadSong(current);
             audio.play();
@@ -216,11 +223,9 @@ function buildPlaylist(){
 }
 
 searchInput.addEventListener("input",()=>{
-    const searchTerm = searchInput.value.toLowerCase();
-    filteredSongs = songs.filter(song =>
-        song.toLowerCase().includes(searchTerm)
-    );
-    current = 0;
+    const searchTerm=searchInput.value.toLowerCase();
+    filteredSongs=songs.filter(song=>song.toLowerCase().includes(searchTerm));
+    current=0;
     buildPlaylist();
     if(filteredSongs.length>0) loadSong(0);
 });
@@ -228,43 +233,41 @@ searchInput.addEventListener("input",()=>{
 buildPlaylist();
 loadSong(current);
 
-/* ===== VISUALIZER ===== */
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d");
+/* VISUALIZER */
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=180;
 
-canvas.width = window.innerWidth;
-canvas.height = 160;
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const analyser = audioCtx.createAnalyser();
-const source = audioCtx.createMediaElementSource(audio);
-
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+const analyser=audioCtx.createAnalyser();
+const source=audioCtx.createMediaElementSource(audio);
 source.connect(analyser);
 analyser.connect(audioCtx.destination);
+analyser.fftSize=256;
 
-analyser.fftSize = 256;
-
-const bufferLength = analyser.frequencyBinCount;
-const dataArray = new Uint8Array(bufferLength);
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
 
 function animate(){
     requestAnimationFrame(animate);
     analyser.getByteFrequencyData(dataArray);
-
-    ctx.fillStyle = "black";
+    ctx.fillStyle="black";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    const barWidth = (canvas.width / bufferLength);
-    let x = 0;
+    const barWidth=(canvas.width/bufferLength)*2;
+    let x=0;
 
     for(let i=0;i<bufferLength;i++){
-        const barHeight = dataArray[i];
-        ctx.fillStyle = "rgb("+(barHeight+50)+",0,0)";
-        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-        x += barWidth;
+        const barHeight=dataArray[i];
+        const r=barHeight+50;
+        const g=50;
+        const b=150;
+        ctx.fillStyle="rgb("+r+","+g+","+b+")";
+        ctx.fillRect(x,canvas.height-barHeight,barWidth-2,barHeight);
+        x+=barWidth;
     }
 }
-
 animate();
 
 </script>
