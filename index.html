@@ -22,7 +22,7 @@ color:red;
 text-shadow:0 0 20px red;
 }
 
-/* ALBUM */
+/* ===== ALBUM + ROTATING RING ===== */
 
 .album-wrapper{
 position:relative;
@@ -38,6 +38,11 @@ height:260px;
 animation:spin 12s linear infinite;
 }
 
+.rotating-ring svg{
+width:100%;
+height:100%;
+}
+
 .album{
 position:absolute;
 top:30px;
@@ -49,10 +54,6 @@ overflow:hidden;
 box-shadow:0 0 40px red;
 }
 
-.album.playing{
-animation:vinyl 6s linear infinite;
-}
-
 #cover{
 width:100%;
 height:100%;
@@ -60,11 +61,6 @@ object-fit:cover;
 }
 
 @keyframes spin{
-from{transform:rotate(0deg);}
-to{transform:rotate(360deg);}
-}
-
-@keyframes vinyl{
 from{transform:rotate(0deg);}
 to{transform:rotate(360deg);}
 }
@@ -115,6 +111,26 @@ background:rgba(255,255,255,0.1);
 color:white;
 }
 
+/* PLAYLIST TOGGLE */
+
+#toggleBtn{
+background:rgba(255,0,0,0.2);
+border:none;
+color:white;
+padding:10px 20px;
+border-radius:20px;
+margin-top:10px;
+box-shadow:0 0 15px red;
+}
+
+#toggleBtn:hover{
+background:red;
+}
+
+.hidden{
+display:none;
+}
+
 /* PLAYLIST */
 
 .playlist{
@@ -163,7 +179,7 @@ a115,115 0 1,1 -230,0"/>
 </svg>
 </div>
 
-<div class="album" id="album">
+<div class="album">
 <img id="cover" src="https://picsum.photos/400/400?random=1">
 </div>
 
@@ -183,7 +199,9 @@ a115,115 0 1,1 -230,0"/>
 
 <input type="text" id="search" class="search-box" placeholder="Search song...">
 
-<div class="playlist" id="playlist"></div>
+<button id="toggleBtn" onclick="togglePlaylist()">🎵 Songs</button>
+
+<div class="playlist hidden" id="playlist"></div>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -193,21 +211,21 @@ const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix
 
 const songs=[
 
-"04 - Avenged Sevenfold - Buried Alive.mp3",
-"10 - Avenged Sevenfold - Unholy Confessions.mp3",
-"13 - Avenged Sevenfold - Seize the Day.mp3",
-"14 - Avenged Sevenfold - Nobody.mp3",
-"18 - Avenged Sevenfold - Blinded in Chains.mp3",
-"35 - Avenged Sevenfold - 4_00 AM.mp3",
-"37 - Avenged Sevenfold - Crossroads.mp3",
+"01 - Avenged Sevenfold - Buried Alive.mp3",
+"2 - Avenged Sevenfold - Unholy Confessions.mp3",
+"3 - Avenged Sevenfold - Seize the Day.mp3",
+"4 - Avenged Sevenfold - Nobody.mp3",
+"5 - Avenged Sevenfold - Blinded in Chains.mp3",
+"6 - Avenged Sevenfold - 4_00 AM.mp3",
+"7 - Avenged Sevenfold - Crossroads.mp3",
 
-"03 - Red Hot Chili Peppers - Californication.mp3",
-"05 - Red Hot Chili Peppers - Scar Tissue.mp3",
-"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
-"07 - Red Hot Chili Peppers - Otherside.mp3",
-"08 - Red Hot Chili Peppers - By the Way.mp3",
-"09 - Red Hot Chili Peppers - Dani California.mp3",
-"11 - Red Hot Chili Peppers - Dark Necessities.mp3"
+"08 - Red Hot Chili Peppers - Californication.mp3",
+"09 - Red Hot Chili Peppers - Scar Tissue.mp3",
+"10 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
+"11 - Red Hot Chili Peppers - Otherside.mp3",
+"12 - Red Hot Chili Peppers - By the Way.mp3",
+"13 - Red Hot Chili Peppers - Dani California.mp3",
+"14 - Red Hot Chili Peppers - Dark Necessities.mp3"
 
 ];
 
@@ -218,7 +236,6 @@ const audio=document.getElementById("audio");
 const title=document.getElementById("title");
 const playlistDiv=document.getElementById("playlist");
 const cover=document.getElementById("cover");
-const album=document.getElementById("album");
 const progress=document.getElementById("progress");
 
 function loadSong(i){
@@ -231,11 +248,9 @@ highlight();
 function playPause(){
 if(audio.paused){
 audio.play();
-album.classList.add("playing");
 initVisualizer();
 }else{
 audio.pause();
-album.classList.remove("playing");
 }
 }
 
@@ -244,7 +259,6 @@ current++;
 if(current>=filteredSongs.length) current=0;
 loadSong(current);
 audio.play();
-album.classList.add("playing");
 }
 
 function prevSong(){
@@ -252,7 +266,6 @@ current--;
 if(current<0) current=filteredSongs.length-1;
 loadSong(current);
 audio.play();
-album.classList.add("playing");
 }
 
 audio.addEventListener("ended",nextSong);
@@ -277,9 +290,13 @@ filteredSongs.forEach((song,i)=>{
 const div=document.createElement("div");
 div.className="song";
 div.innerText=song;
-div.onclick=()=>{current=i;loadSong(i);audio.play();album.classList.add("playing");};
+div.onclick=()=>{current=i;loadSong(i);audio.play();};
 playlistDiv.appendChild(div);
 });
+}
+
+function togglePlaylist(){
+playlistDiv.classList.toggle("hidden");
 }
 
 document.getElementById("search").addEventListener("input",e=>{
