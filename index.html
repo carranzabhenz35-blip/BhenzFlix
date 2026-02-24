@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BhenzFlix Pro</title>
+<title>BhenzFlix Music</title>
 
 <style>
 body{
@@ -10,6 +10,7 @@ body{
     font-family:Arial, sans-serif;
     color:white;
     text-align:center;
+    overflow-x:hidden;
 }
 
 /* BLUR BACKGROUND */
@@ -19,13 +20,36 @@ body{
     height:100%;
     background-size:cover;
     background-position:center;
-    filter:blur(30px) brightness(40%);
+    filter:blur(35px) brightness(40%);
     z-index:-1;
     transition:0.5s;
 }
 
-.container{
+/* TOP BANNER */
+.topbar{
+    position:fixed;
+    top:0;
+    width:100%;
     padding:20px;
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:5px;
+    background:rgba(0,0,0,0.8);
+    color:red;
+    text-shadow:0 0 15px red;
+    box-shadow:0 0 20px red;
+    z-index:999;
+    animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+    from{ text-shadow:0 0 10px red; }
+    to{ text-shadow:0 0 25px red; }
+}
+
+.container{
+    padding-top:120px;
+    padding-bottom:40px;
 }
 
 .album{
@@ -36,10 +60,26 @@ body{
     background-size:cover;
     background-position:center;
     box-shadow:0 0 30px red;
+    transition:0.4s;
 }
 
 h2{
     margin:10px 0;
+}
+
+.progress{
+    width:90%;
+    height:6px;
+    background:#333;
+    margin:15px auto;
+    border-radius:5px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:6px;
+    width:0%;
+    background:red;
 }
 
 .controls{
@@ -50,33 +90,19 @@ h2{
     background:none;
     border:none;
     color:white;
-    font-size:28px;
+    font-size:30px;
     margin:10px;
     cursor:pointer;
 }
 
-.progress{
-    width:90%;
-    height:5px;
-    background:#333;
-    margin:15px auto;
-    border-radius:5px;
-    overflow:hidden;
-}
-
-.progress-bar{
-    height:5px;
-    width:0%;
-    background:red;
-}
-
+/* Equalizer */
 .equalizer{
     display:flex;
     justify-content:center;
     align-items:flex-end;
     height:60px;
-    gap:5px;
-    margin-top:10px;
+    gap:6px;
+    margin-top:15px;
 }
 
 .bar{
@@ -96,17 +122,19 @@ h2{
     50%{height:50px;}
 }
 
+/* Playlist */
 .playlist{
-    margin-top:20px;
-    max-height:180px;
+    margin-top:25px;
+    max-height:200px;
     overflow:auto;
     border-top:1px solid #444;
 }
 
 .song{
-    padding:10px;
+    padding:12px;
     cursor:pointer;
     border-bottom:1px solid #333;
+    transition:0.3s;
 }
 
 .song:hover{
@@ -122,6 +150,10 @@ h2{
 <body>
 
 <div id="bg"></div>
+
+<div class="topbar">
+🎵 BHENZFLIX MUSIC
+</div>
 
 <div class="container">
 
@@ -161,8 +193,8 @@ file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Liv
 cover:"https://i.imgur.com/8Km9tLL.jpg"
 },
 {
-title:"Second Song Sample",
-file:"https://www.dropbox.com/scl/fi/wd55ka3u46l7g0o5xql29/A-Boy-Brushed-Red-Living-In-Black-And-White-Underoath-320K.mp3?rlkey=0acevs2ty266wxofuiubb3oxu&st=7tso2i3s&raw=1",
+title:"Add More Song Here",
+file:"YOUR_DROPBOX_LINK?raw=1",
 cover:"https://i.imgur.com/8Km9tLL.jpg"
 }
 ];
