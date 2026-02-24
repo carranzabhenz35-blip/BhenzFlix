@@ -1,157 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BhenzFlix Cinema</title>
+    <title>BhenzFlix Music</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: black;
+            background: radial-gradient(circle, #1a0000 0%, #000 70%);
             color: white;
-            overflow: hidden;
-        }
-
-        /* INTRO SCREEN */
-        #intro {
-            position: fixed;
-            width: 100%;
-            height: 100vh;
-            background: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-            animation: fadeOut 3s forwards;
-            animation-delay: 3s;
-        }
-
-        #intro h1 {
-            color: red;
-            font-size: 80px;
-            letter-spacing: 10px;
-            text-shadow: 0 0 40px red;
-            animation: zoomIn 2s ease-in-out;
-        }
-
-        @keyframes zoomIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
-        }
-
-        /* CURTAIN EFFECT */
-        .curtain {
-            position: fixed;
-            width: 50%;
-            height: 100vh;
-            background: linear-gradient(to bottom, #800000, #300000);
-            z-index: 2000;
-            top: 0;
-        }
-
-        .left {
-            left: 0;
-            animation: openLeft 3s forwards;
-            animation-delay: 3s;
-        }
-
-        .right {
-            right: 0;
-            animation: openRight 3s forwards;
-            animation-delay: 3s;
-        }
-
-        @keyframes openLeft {
-            to { transform: translateX(-100%); }
-        }
-
-        @keyframes openRight {
-            to { transform: translateX(100%); }
+            text-align: center;
         }
 
         header {
-            position: fixed;
-            width: 100%;
-            top: 0;
-            padding: 15px;
-            text-align: center;
+            padding: 20px;
             font-size: 28px;
             font-weight: bold;
             color: red;
             letter-spacing: 5px;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
+            box-shadow: 0 0 20px red;
         }
 
-        .hero {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            flex-direction: column;
-            padding: 20px;
-            background: radial-gradient(circle, #1a0000 0%, black 70%);
+        .player {
+            margin-top: 80px;
+            padding: 30px;
         }
 
-        .hero h1 {
-            font-size: 60px;
-            text-shadow: 0 0 25px red;
+        audio {
+            width: 80%;
+            margin-top: 20px;
         }
 
-        iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            box-shadow: 0 0 40px red;
+        .song-list {
+            margin-top: 30px;
         }
 
-        footer {
-            text-align: center;
-            padding: 15px;
-            background: black;
-            color: gray;
+        .song {
+            cursor: pointer;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: 0.3s;
         }
 
-        .content {
-            padding-top: 100px;
+        .song:hover {
+            background: red;
         }
     </style>
 </head>
 
 <body>
 
-<!-- INTRO -->
-<div id="intro">
-    <h1>BHENZFLIX</h1>
-</div>
-
-<!-- CURTAINS -->
-<div class="curtain left"></div>
-<div class="curtain right"></div>
-
 <header>
-    🎬 BHENZFLIX CINEMA
+    🎵 BHENZFLIX MUSIC
 </header>
 
-<div class="hero content">
-    <h1>Now Showing</h1>
+<div class="player">
+    <h2>Now Playing</h2>
 
-    <iframe 
-        src="https://www.youtube.com/embed/ISUwfFAL8lg?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0"
-        allow="autoplay"
-        allowfullscreen>
-    </iframe>
+    <audio id="audioPlayer" controls>
+        <source src="song1.mp3" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+
+    <div class="song-list">
+        <h3>Playlist</h3>
+
+        <div class="song" onclick="playSong('song1.mp3')">🎶 Song 1</div>
+        <div class="song" onclick="playSong('song2.mp3')">🎶 Song 2</div>
+        <div class="song" onclick="playSong('song3.mp3')">🎶 Song 3</div>
+
+    </div>
 </div>
 
-<footer>
-    © 2026 BhenzFlix Cinema Experience
-</footer>
+<script>
+function playSong(song) {
+    var player = document.getElementById("audioPlayer");
+    player.src = song;
+    player.play();
+}
+</script>
 
 </body>
 </html>
