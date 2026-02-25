@@ -7,15 +7,22 @@
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:black;
+font-family:Arial, sans-serif;
+background:url("file_00000000e5647209a6f0034bc9238384.png") no-repeat center center fixed;
+background-size:cover;
 color:white;
 text-align:center;
+}
+
+.overlay{
+background:rgba(0,0,0,0.75);
+min-height:100vh;
 padding-top:40px;
 }
 
-h2{
+h1{
 color:red;
+text-shadow:0 0 15px red;
 }
 
 audio{
@@ -25,52 +32,59 @@ margin-top:20px;
 
 #playlist{
 margin-top:30px;
+width:90%;
+margin-left:auto;
+margin-right:auto;
+background:rgba(0,0,0,0.6);
+border-radius:10px;
+padding:10px;
 }
 
 #playlist div{
 padding:10px;
-border-bottom:1px solid #333;
+border-bottom:1px solid rgba(255,255,255,0.2);
 cursor:pointer;
 }
 
 #playlist div:hover{
-background:#330000;
+background:rgba(255,0,0,0.4);
 }
 </style>
 </head>
 
 <body>
 
-<h2>🔥 BhenzFlix Music 🔥</h2>
+<div class="overlay">
+
+<h1>🔥 BhenzFlix Music 🔥</h1>
 
 <audio id="audio" controls></audio>
 
 <div id="playlist"></div>
 
+</div>
+
 <script>
 
-// EXACT filenames from your repo
 const songs = [
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
 "06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
-"07 - Linkin Park - What I've Done.mp3",
-"10 - Avenged Sevenfold - Unholy Confessions.mp3",
-"13 - Avenged Sevenfold - Seize the Day.mp3"
+"10 - Avenged Sevenfold - Unholy Confessions.mp3"
 ];
 
 const audio = document.getElementById("audio");
 const playlist = document.getElementById("playlist");
 
 // create playlist
-songs.forEach((song, index) => {
+songs.forEach(song => {
 
 let div = document.createElement("div");
 div.innerText = song;
 
 div.onclick = () => {
-audio.src = encodeURI(song); // IMPORTANT
+audio.src = encodeURI(song);
 audio.play();
 };
 
