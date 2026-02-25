@@ -29,21 +29,12 @@ height:260px;
 margin:20px auto;
 }
 
-.rotating-ring{
-position:absolute;
-width:260px;
-height:260px;
-animation:spin 12s linear infinite;
-}
-
 .album{
-position:absolute;
-top:35px;
-left:35px;
 width:190px;
 height:190px;
 border-radius:50%;
 overflow:hidden;
+margin:auto;
 box-shadow:0 0 40px red;
 }
 
@@ -53,14 +44,8 @@ height:100%;
 object-fit:cover;
 }
 
-@keyframes spin{
-from{transform:rotate(0deg);}
-to{transform:rotate(360deg);}
-}
-
 .player{
 background:rgba(255,0,0,0.1);
-backdrop-filter:blur(8px);
 border-radius:20px;
 padding:15px;
 margin:15px auto;
@@ -89,7 +74,6 @@ accent-color:red;
 display:flex;
 justify-content:space-between;
 font-size:12px;
-opacity:0.8;
 width:90%;
 margin:auto;
 }
@@ -97,7 +81,7 @@ margin:auto;
 #playlist{
 display:none;
 margin-top:10px;
-max-height:250px;
+max-height:200px;
 overflow-y:auto;
 }
 
@@ -116,40 +100,28 @@ display:none;
 margin-top:15px;
 }
 
-.song-btn{
-position:fixed;
-bottom:20px;
-left:20px;
-background:red;
-border:none;
-color:white;
-padding:15px;
-border-radius:50%;
-font-size:18px;
-box-shadow:0 0 20px red;
-cursor:pointer;
-}
-
-.settings-btn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:red;
-border:none;
-color:white;
-padding:15px;
-border-radius:50%;
-font-size:18px;
-box-shadow:0 0 20px red;
-cursor:pointer;
-}
-
-#visualizer{
+canvas{
 width:100%;
-height:140px;
-display:block;
+height:120px;
 margin-top:20px;
 }
+
+.song-btn, .settings-btn{
+position:fixed;
+bottom:20px;
+background:red;
+border:none;
+color:white;
+padding:15px;
+border-radius:50%;
+font-size:18px;
+box-shadow:0 0 20px red;
+cursor:pointer;
+}
+
+.song-btn{ left:20px; }
+.settings-btn{ right:20px; }
+
 </style>
 </head>
 
@@ -158,22 +130,8 @@ margin-top:20px;
 <div class="topbar">🔥 BHENZFLIX MUSIC 🔥</div>
 
 <div class="album-wrapper">
-<div class="rotating-ring">
-<svg viewBox="0 0 260 260">
-<defs>
-<path id="circlePath"
-d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
-</defs>
-<text fill="red" font-size="12" letter-spacing="3">
-<textPath href="#circlePath">
-• POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
-</textPath>
-</text>
-</svg>
-</div>
-
 <div class="album">
-<img id="cover" src="file_00000000e5647209a6f0034bc9238384.png">
+<img id="cover" src="cover.jpg">
 </div>
 </div>
 
@@ -213,36 +171,14 @@ TREBLE<br>
 <button class="song-btn" onclick="togglePlaylist()">🎵</button>
 <button class="settings-btn" onclick="toggleEQ()">⚙️</button>
 
-<audio id="audio" crossorigin="anonymous"></audio>
+<audio id="audio"></audio>
 
 <script>
 
-const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
-
 const songs=[
-"californication.mp3",
-"buried_alive.mp3",
-"scar_tissue.mp3",
-"snow.mp3",
-"otherside.mp3",
-"by_the_way.mp3",
-"dani_california.mp3",
-"unholy_confessions.mp3",
-"dark_necessities.mp3",
-"seize_the_day.mp3",
-"nobody.mp3",
-"blinded_in_chains.mp3",
-"four_am.mp3",
-"crossroads.mp3",
-"what_ive_done.mp3",
-"bleed_it_out.mp3",
-"given_up.mp3",
-"in_pieces.mp3",
-"new_divide.mp3",
-"valentines_day.mp3",
-"hands_held_high.mp3",
-"numb_encore.mp3",
-"dirt_off_your_shoulder.mp3"
+"song1.mp3",
+"song2.mp3",
+"song3.mp3"
 ];
 
 let current=0;
@@ -255,7 +191,11 @@ const playlist=document.getElementById("playlist");
 songs.forEach((song,index)=>{
 let div=document.createElement("div");
 div.innerText=song;
-div.onclick=()=>{current=index;loadSong(current);audio.play();};
+div.onclick=()=>{
+current=index;
+loadSong(current);
+togglePlay();
+};
 playlist.appendChild(div);
 });
 
@@ -269,11 +209,16 @@ panel.style.display=(panel.style.display==="block")?"none":"block";
 }
 
 function loadSong(i){
-audio.src=repoBase+songs[i];
+audio.src=songs[i];
 document.getElementById("title").innerText=songs[i];
 }
 
 function togglePlay(){
+
+if(!audioCtx){
+initAudio();
+}
+
 if(audio.paused){
 audio.play();
 playBtn.innerText="⏸";
@@ -286,13 +231,13 @@ playBtn.innerText="▶";
 function nextSong(){
 current=(current+1)%songs.length;
 loadSong(current);
-audio.play();
+togglePlay();
 }
 
 function prevSong(){
 current=(current-1+songs.length)%songs.length;
 loadSong(current);
-audio.play();
+togglePlay();
 }
 
 audio.addEventListener("timeupdate",()=>{
@@ -309,8 +254,6 @@ progress.addEventListener("input",()=>{
 audio.currentTime=progress.value;
 });
 
-audio.addEventListener("ended",nextSong);
-
 function formatTime(time){
 let min=Math.floor(time/60);
 let sec=Math.floor(time%60);
@@ -318,18 +261,57 @@ if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
 
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-const source=audioCtx.createMediaElementSource(audio);
-const analyser=audioCtx.createAnalyser();
+/* AUDIO + EQ + VISUALIZER */
+
+let audioCtx, analyser, source;
+let sub,bass,mid,treble;
+
+function initAudio(){
+
+audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+source=audioCtx.createMediaElementSource(audio);
+
+analyser=audioCtx.createAnalyser();
 analyser.fftSize=256;
 
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
+sub=audioCtx.createBiquadFilter();
+sub.type="lowshelf";
+sub.frequency.value=60;
+
+bass=audioCtx.createBiquadFilter();
+bass.type="lowshelf";
+bass.frequency.value=150;
+
+mid=audioCtx.createBiquadFilter();
+mid.type="peaking";
+mid.frequency.value=1000;
+mid.Q.value=1;
+
+treble=audioCtx.createBiquadFilter();
+treble.type="highshelf";
+treble.frequency.value=4000;
+
+source.connect(sub)
+.connect(bass)
+.connect(mid)
+.connect(treble)
+.connect(analyser)
+.connect(audioCtx.destination);
+
+document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
+document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
+document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
+document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
+
+startVisualizer();
+}
+
+function startVisualizer(){
 
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
-canvas.height=140;
+canvas.height=120;
 
 const bufferLength=analyser.frequencyBinCount;
 const dataArray=new Uint8Array(bufferLength);
@@ -338,8 +320,10 @@ function draw(){
 requestAnimationFrame(draw);
 analyser.getByteFrequencyData(dataArray);
 ctx.clearRect(0,0,canvas.width,canvas.height);
+
 let barWidth=(canvas.width/bufferLength)*2;
 let x=0;
+
 for(let i=0;i<bufferLength;i++){
 let barHeight=dataArray[i];
 ctx.fillStyle="red";
@@ -348,10 +332,12 @@ x+=barWidth+1;
 }
 }
 
-audio.addEventListener("play",()=>audioCtx.resume());
 draw();
+}
+
 loadSong(current);
 
 </script>
+
 </body>
 </html>
