@@ -2,15 +2,49 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>TEST PLAYER</title>
+<title>BhenzFlix Music</title>
+<style>
+body{background:black;color:white;text-align:center;font-family:Arial;padding-top:60px;}
+button{padding:15px 30px;font-size:18px;background:red;color:white;border:none;cursor:pointer;}
+#playlist div{padding:10px;border-bottom:1px solid #444;cursor:pointer;}
+#playlist div:hover{background:#330000;}
+</style>
 </head>
-<body style="background:black; color:white; text-align:center; padding-top:100px;">
+<body>
 
-<h2>Simple Test Player</h2>
+<h2>BhenzFlix Music</h2>
 
-<audio id="audio" controls>
-  <source src="song1.mp3" type="audio/mpeg">
-</audio>
+<audio id="audio" controls style="width:90%;margin-top:20px;"></audio>
+
+<div id="playlist" style="margin-top:30px;"></div>
+
+<script>
+
+// LIST OF SONGS (relative to github pages)
+const songs = [
+  "songs/song1.mp3",
+  "songs/song2.mp3",
+  "songs/song3.mp3"
+];
+
+const audio = document.getElementById("audio");
+const playlist = document.getElementById("playlist");
+
+// load playlist
+songs.forEach((song, index) => {
+  let div = document.createElement("div");
+  div.innerText = song.replace("songs/","");
+  div.onclick = () => {
+    audio.src = song;
+    audio.play();
+  };
+  playlist.appendChild(div);
+});
+
+// load first song
+audio.src = songs[0];
+
+</script>
 
 </body>
 </html>
