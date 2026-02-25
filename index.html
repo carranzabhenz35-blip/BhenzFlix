@@ -2,69 +2,51 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>BhenzFlix Music PRO</title>
+<title>BhenzFlix Music</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:radial-gradient(circle at top,#400000,#000);
+background:radial-gradient(circle at top,#500000,#000);
 color:white;
 text-align:center;
 overflow-x:hidden;
 }
 
-/* GLASS PANEL */
-.glass{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-border:1px solid rgba(255,0,0,0.2);
-border-radius:20px;
-padding:15px;
-box-shadow:0 0 20px rgba(255,0,0,0.3);
-margin:10px auto;
-width:90%;
-}
-
 /* HEADER */
 .topbar{
 padding:15px;
-font-size:24px;
-letter-spacing:4px;
+font-size:22px;
+letter-spacing:3px;
 color:#ff2a2a;
-text-shadow:0 0 20px red;
+text-shadow:0 0 15px red;
 }
 
 /* ALBUM */
 .album-wrapper{
 position:relative;
-width:280px;
-height:280px;
+width:260px;
+height:260px;
 margin:20px auto;
 }
 
 .rotating-ring{
 position:absolute;
-width:280px;
-height:280px;
-animation:spin 10s linear infinite;
+width:260px;
+height:260px;
+animation:spin 12s linear infinite;
 }
 
 .album{
 position:absolute;
-top:40px;
-left:40px;
-width:200px;
-height:200px;
+top:35px;
+left:35px;
+width:190px;
+height:190px;
 border-radius:50%;
 overflow:hidden;
-box-shadow:0 0 50px red;
-transition:0.4s;
-}
-
-.album:hover{
-box-shadow:0 0 80px #ff0000;
-transform:scale(1.05);
+box-shadow:0 0 40px red;
 }
 
 #cover{
@@ -78,33 +60,36 @@ from{transform:rotate(0deg);}
 to{transform:rotate(360deg);}
 }
 
-/* CONTROLS */
+/* PLAYER PANEL */
+.player{
+background:rgba(255,0,0,0.1);
+backdrop-filter:blur(8px);
+border-radius:20px;
+padding:15px;
+margin:15px auto;
+width:90%;
+box-shadow:0 0 20px rgba(255,0,0,0.4);
+}
+
 .controls button{
-background:rgba(255,0,0,0.2);
+background:rgba(255,0,0,0.3);
 border:none;
 color:white;
 font-size:18px;
-margin:6px;
-padding:12px 16px;
-border-radius:15px;
+margin:5px;
+padding:10px 14px;
+border-radius:12px;
 box-shadow:0 0 15px red;
 cursor:pointer;
-transition:0.3s;
 }
 
 .controls button:hover{
 background:red;
-transform:scale(1.1);
 }
 
-/* TIME BAR */
-.progress-container{
-width:85%;
-margin:10px auto;
-}
-
+/* PROGRESS BAR */
 #progress{
-width:100%;
+width:90%;
 accent-color:red;
 }
 
@@ -112,52 +97,65 @@ accent-color:red;
 display:flex;
 justify-content:space-between;
 font-size:12px;
-opacity:0.7;
+opacity:0.8;
+width:90%;
+margin:auto;
 }
 
 /* VISUALIZER */
 canvas{
 width:100%;
-height:140px;
+height:130px;
 margin-top:10px;
 }
 
 /* FLOAT BUTTONS */
-.song-btn, .settings-btn{
+.song-btn{
 position:fixed;
 bottom:20px;
+left:20px;
 background:red;
-color:white;
 border:none;
-padding:14px 16px;
+color:white;
+padding:15px;
 border-radius:50%;
 font-size:18px;
 box-shadow:0 0 20px red;
 cursor:pointer;
-transition:0.3s;
 }
 
-.song-btn:hover, .settings-btn:hover{
-transform:scale(1.2);
+/* PLAYLIST */
+#playlist{
+display:none;
+margin-top:10px;
+max-height:250px;
+overflow-y:auto;
 }
 
-.song-btn{left:20px;}
-.settings-btn{right:20px;}
+#playlist div{
+padding:8px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+cursor:pointer;
+}
+
+#playlist div:hover{
+background:rgba(255,0,0,0.3);
+}
 </style>
 </head>
 
 <body>
 
-<div class="topbar">🔥 BHENZFLIX MUSIC PRO 🔥</div>
+<div class="topbar">🔥 BHENZFLIX MUSIC 🔥</div>
 
 <div class="album-wrapper">
 <div class="rotating-ring">
-<svg viewBox="0 0 280 280">
+<svg viewBox="0 0 260 260">
 <defs>
 <path id="circlePath"
-d="M140,140 m-125,0 a125,125 0 1,1 250,0 a125,125 0 1,1 -250,0"/>
+d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 </defs>
-<text fill="red" font-size="14" letter-spacing="3">
+<text fill="red" font-size="12" letter-spacing="3">
 <textPath href="#circlePath">
 • POWERED BY BHENZFLIX • POWERED BY BHENZFLIX •
 </textPath>
@@ -170,7 +168,8 @@ d="M140,140 m-125,0 a125,125 0 1,1 250,0 a125,125 0 1,1 -250,0"/>
 </div>
 </div>
 
-<div class="glass">
+<div class="player">
+
 <div id="title">Loading...</div>
 
 <div class="controls">
@@ -179,19 +178,19 @@ d="M140,140 m-125,0 a125,125 0 1,1 250,0 a125,125 0 1,1 -250,0"/>
 <button onclick="nextSong()">⏭</button>
 </div>
 
-<div class="progress-container">
 <input type="range" id="progress" value="0" min="0" step="1">
 <div class="time">
 <span id="currentTime">0:00</span>
 <span id="duration">0:00</span>
 </div>
-</div>
+
+<div id="playlist"></div>
+
 </div>
 
 <canvas id="visualizer"></canvas>
 
-<button class="song-btn">🎵</button>
-<button class="settings-btn">⚙️</button>
+<button class="song-btn" onclick="togglePlaylist()">🎵</button>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -199,8 +198,31 @@ d="M140,140 m-125,0 a125,125 0 1,1 250,0 a125,125 0 1,1 -250,0"/>
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs=[
+
 "03 - Red Hot Chili Peppers - Californication.mp3",
-"04 - Avenged Sevenfold - Buried Alive.mp3"
+"04 - Avenged Sevenfold - Buried Alive.mp3",
+"05 - Red Hot Chili Peppers - Scar Tissue.mp3",
+"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
+"07 - Red Hot Chili Peppers - Otherside.mp3",
+"08 - Red Hot Chili Peppers - By the Way.mp3",
+"09 - Red Hot Chili Peppers - Dani California.mp3",
+"10 - Avenged Sevenfold - Unholy Confessions.mp3",
+"11 - Red Hot Chili Peppers - Dark Necessities.mp3",
+"13 - Avenged Sevenfold - Seize the Day.mp3",
+"14 - Avenged Sevenfold - Nobody.mp3",
+"18 - Avenged Sevenfold - Blinded in Chains.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
+"37 - Avenged Sevenfold - Crossroads.mp3",
+"07 - Linkin Park - What I've Done.mp3",
+"13 - Linkin Park - Bleed It Out.mp3",
+"15 - Linkin Park - Given Up.mp3",
+"29 - Linkin Park - In Pieces.mp3",
+"31 - Linkin Park - New Divide.mp3",
+"33 - Linkin Park - Valentine's Day.mp3",
+"36 - Linkin Park - Hands Held High.mp3",
+"17 - JAY-Z - Numb _ Encore.mp3",
+"35 - JAY-Z - Dirt Off Your Shoulder.mp3"
+
 ];
 
 let current=0;
@@ -208,6 +230,19 @@ let current=0;
 const audio=document.getElementById("audio");
 const playBtn=document.getElementById("playBtn");
 const progress=document.getElementById("progress");
+const playlist=document.getElementById("playlist");
+
+/* LOAD PLAYLIST */
+songs.forEach((song,index)=>{
+let div=document.createElement("div");
+div.innerText=song;
+div.onclick=()=>{current=index;loadSong(current);audio.play();};
+playlist.appendChild(div);
+});
+
+function togglePlaylist(){
+playlist.style.display=(playlist.style.display==="block")?"none":"block";
+}
 
 function loadSong(i){
 audio.src=encodeURI(repoBase+songs[i]);
@@ -215,8 +250,13 @@ document.getElementById("title").innerText=songs[i];
 }
 
 function togglePlay(){
-if(audio.paused){audio.play();playBtn.innerText="⏸";}
-else{audio.pause();playBtn.innerText="▶";}
+if(audio.paused){
+audio.play();
+playBtn.innerText="⏸";
+}else{
+audio.pause();
+playBtn.innerText="▶";
+}
 }
 
 function nextSong(){
@@ -252,7 +292,7 @@ if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
 
-/* RGB VISUALIZER */
+/* VISUALIZER */
 const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 const source=audioCtx.createMediaElementSource(audio);
 const analyser=audioCtx.createAnalyser();
@@ -263,7 +303,7 @@ analyser.fftSize=256;
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
-canvas.height=140;
+canvas.height=130;
 
 const bufferLength=analyser.frequencyBinCount;
 const dataArray=new Uint8Array(bufferLength);
@@ -278,10 +318,7 @@ let x=0;
 
 for(let i=0;i<bufferLength;i++){
 let barHeight=dataArray[i];
-let r=barHeight+100;
-let g=50+i*2;
-let b=150;
-ctx.fillStyle="rgb("+r+","+g+","+b+")";
+ctx.fillStyle="rgb("+barHeight+",0,150)";
 ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
 x+=barWidth+1;
 }
