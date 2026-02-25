@@ -8,7 +8,7 @@
 body{
 margin:0;
 font-family:Arial;
-background:radial-gradient(circle at top,#500000,#000);
+background:radial-gradient(circle at top,#600000,#000);
 color:white;
 text-align:center;
 overflow-x:hidden;
@@ -140,6 +140,19 @@ padding:8px;
 border-bottom:1px solid rgba(255,255,255,0.1);
 cursor:pointer;
 }
+
+#playlist div:hover{
+background:rgba(255,0,0,0.3);
+}
+
+#eqPanel{
+display:none;
+margin-top:15px;
+}
+
+#eqPanel input{
+width:70px;
+}
 </style>
 </head>
 
@@ -185,12 +198,23 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 
 <div id="playlist"></div>
 
+<div id="eqPanel">
+SUB<br>
+<input type="range" id="sub" min="-30" max="30" value="0"><br>
+BASS<br>
+<input type="range" id="bass" min="-30" max="30" value="0"><br>
+MID<br>
+<input type="range" id="mid" min="-30" max="30" value="0"><br>
+TREBLE<br>
+<input type="range" id="treble" min="-30" max="30" value="0">
+</div>
+
 </div>
 
 <canvas id="visualizer"></canvas>
 
 <button class="song-btn" onclick="togglePlaylist()">🎵</button>
-<button class="settings-btn">⚙️</button>
+<button class="settings-btn" onclick="toggleEQ()">⚙️</button>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -231,7 +255,6 @@ const playBtn=document.getElementById("playBtn");
 const progress=document.getElementById("progress");
 const playlist=document.getElementById("playlist");
 
-/* BUILD PLAYLIST */
 songs.forEach((song,index)=>{
 let div=document.createElement("div");
 div.innerText=song;
@@ -241,6 +264,11 @@ playlist.appendChild(div);
 
 function togglePlaylist(){
 playlist.style.display=(playlist.style.display==="block")?"none":"block";
+}
+
+function toggleEQ(){
+const panel=document.getElementById("eqPanel");
+panel.style.display=(panel.style.display==="block")?"none":"block";
 }
 
 function loadSong(i){
@@ -270,11 +298,6 @@ loadSong(current);
 audio.play();
 }
 
-/* AUTO SKIP IF ERROR */
-audio.addEventListener("error",()=>{
-nextSong();
-});
-
 audio.addEventListener("timeupdate",()=>{
 progress.value=audio.currentTime;
 document.getElementById("currentTime").innerText=formatTime(audio.currentTime);
@@ -295,6 +318,34 @@ let sec=Math.floor(time%60);
 if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
+
+/* EQUALIZER */
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+const source=audioCtx.createMediaElementSource(audio);
+
+const sub=audioCtx.createBiquadFilter();
+sub.type="lowshelf";
+sub.frequency.value=60;
+
+const bass=audioCtx.createBiquadFilter();
+bass.type="lowshelf";
+bass.frequency.value=150;
+
+const mid=audioCtx.createBiquadFilter();
+mid.type="peaking";
+mid.frequency.value=1000;
+mid.Q.value=1;
+
+const treble=audioCtx.createBiquadFilter();
+treble.type="highshelf";
+treble.frequency.value=4000;
+
+source.connect(sub).connect(bass).connect(mid).connect(treble).connect(audioCtx.destination);
+
+document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
+document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
+document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
+document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
 
 loadSong(current);
 
