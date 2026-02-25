@@ -3,46 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <title>BhenzFlix Music</title>
+
 <style>
-body{background:black;color:white;text-align:center;font-family:Arial;padding-top:60px;}
-button{padding:15px 30px;font-size:18px;background:red;color:white;border:none;cursor:pointer;}
-#playlist div{padding:10px;border-bottom:1px solid #444;cursor:pointer;}
-#playlist div:hover{background:#330000;}
+body{
+margin:0;
+font-family:Arial;
+background:black;
+color:white;
+text-align:center;
+padding-top:40px;
+}
+
+h2{
+color:red;
+}
+
+audio{
+width:90%;
+margin-top:20px;
+}
+
+#playlist{
+margin-top:30px;
+}
+
+#playlist div{
+padding:10px;
+border-bottom:1px solid #333;
+cursor:pointer;
+}
+
+#playlist div:hover{
+background:#330000;
+}
 </style>
 </head>
+
 <body>
 
-<h2>BhenzFlix Music</h2>
+<h2>🔥 BhenzFlix Music 🔥</h2>
 
-<audio id="audio" controls style="width:90%;margin-top:20px;"></audio>
+<audio id="audio" controls></audio>
 
-<div id="playlist" style="margin-top:30px;"></div>
+<div id="playlist"></div>
 
 <script>
 
-// LIST OF SONGS (relative to github pages)
+// EXACT filenames from your repo
 const songs = [
-  "songs/song1.mp3",
-  "songs/song2.mp3",
-  "songs/song3.mp3"
+"03 - Red Hot Chili Peppers - Californication.mp3",
+"04 - Avenged Sevenfold - Buried Alive.mp3",
+"05 - Red Hot Chili Peppers - Scar Tissue.mp3",
+"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
+"07 - Linkin Park - What I've Done.mp3",
+"10 - Avenged Sevenfold - Unholy Confessions.mp3",
+"13 - Avenged Sevenfold - Seize the Day.mp3"
 ];
 
 const audio = document.getElementById("audio");
 const playlist = document.getElementById("playlist");
 
-// load playlist
+// create playlist
 songs.forEach((song, index) => {
-  let div = document.createElement("div");
-  div.innerText = song.replace("songs/","");
-  div.onclick = () => {
-    audio.src = song;
-    audio.play();
-  };
-  playlist.appendChild(div);
+
+let div = document.createElement("div");
+div.innerText = song;
+
+div.onclick = () => {
+audio.src = encodeURI(song); // IMPORTANT
+audio.play();
+};
+
+playlist.appendChild(div);
+
 });
 
 // load first song
-audio.src = songs[0];
+audio.src = encodeURI(songs[0]);
 
 </script>
 
