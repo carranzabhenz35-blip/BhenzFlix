@@ -68,7 +68,7 @@ background:rgba(255,0,0,0.4);
 
 <script>
 
-// EXACT filenames from your repo (ROOT folder)
+// EXACT filenames (dapat EXACT sa repo mo)
 const songs = [
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "04 - Avenged Sevenfold - Buried Alive.mp3",
@@ -82,23 +82,27 @@ const songs = [
 const audio = document.getElementById("audio");
 const playlist = document.getElementById("playlist");
 
-// create playlist
+function loadSong(song){
+audio.src = song;
+audio.load();
+audio.play().catch(e => console.log("Play error:", e));
+}
+
 songs.forEach(song => {
 
 let div = document.createElement("div");
 div.innerText = song;
 
 div.onclick = () => {
-audio.src = encodeURI(song);
-audio.play();
+loadSong(song);
 };
 
 playlist.appendChild(div);
 
 });
 
-// load first song
-audio.src = encodeURI(songs[0]);
+// auto load first song
+audio.src = songs[0];
 
 </script>
 
