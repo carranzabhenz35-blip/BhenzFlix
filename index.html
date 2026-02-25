@@ -25,6 +25,13 @@ color:red;
 text-shadow:0 0 20px red;
 }
 
+#nowPlaying{
+margin-top:10px;
+font-size:14px;
+color:white;
+text-shadow:0 0 10px red;
+}
+
 /* CONTROLS */
 .controls{
 margin-top:15px;
@@ -46,15 +53,6 @@ transition:0.3s;
 .controls button:hover{
 transform:scale(1.15);
 box-shadow:0 0 30px red;
-}
-
-.activeGlow{
-animation:pulse 1s infinite alternate;
-}
-
-@keyframes pulse{
-from{box-shadow:0 0 10px red;}
-to{box-shadow:0 0 30px red;}
 }
 
 /* PROGRESS */
@@ -136,6 +134,7 @@ margin-top:20px;
 <div class="overlay">
 
 <h1>🔥 BhenzFlix Music 🔥</h1>
+<h3 id="nowPlaying"></h3>
 
 <audio id="audio"></audio>
 
@@ -187,12 +186,13 @@ const playBtn=document.getElementById("playBtn");
 const progressBar=document.getElementById("progressBar");
 const currentTimeEl=document.getElementById("currentTime");
 const durationEl=document.getElementById("duration");
+const nowPlaying=document.getElementById("nowPlaying");
 
 let currentIndex=0;
 let isShuffle=false;
 let isLoop=false;
 
-/* PLAYLIST BUILD */
+/* BUILD PLAYLIST */
 songs.forEach((song,index)=>{
 let div=document.createElement("div");
 div.innerText=song;
@@ -212,6 +212,7 @@ audio.src=songs[index];
 audio.play();
 playBtn.innerText="⏸";
 highlight();
+nowPlaying.textContent="Now Playing: "+songs[index];
 }
 
 function togglePlay(){
@@ -283,9 +284,48 @@ let eq=document.getElementById("eqPanel");
 eq.style.display=eq.style.display==="block"?"none":"block";
 }
 
+/* VISUALIZER */
+let audioCtx, analyser, source;
+
+audio.addEventListener("play",()=>{
+if(!audioCtx){
+audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+source=audioCtx.createMediaElementSource(audio);
+analyser=audioCtx.createAnalyser();
+analyser.fftSize=256;
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+startVisualizer();
+}
+});
+
+function startVisualizer(){
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=120;
+
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
+
+function draw(){
+requestAnimationFrame(draw);
+analyser.getByteFrequencyData(dataArray);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+let barWidth=(canvas.width/bufferLength)*2;
+let x=0;
+for(let i=0;i<bufferLength;i++){
+let barHeight=dataArray[i];
+ctx.fillStyle="red";
+ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
+x+=barWidth+1;
+}
+}
+draw();
+}
+
 /* LOAD FIRST */
-audio.src=songs[0];
-highlight();
+loadSong(0);
 
 </script>
 
