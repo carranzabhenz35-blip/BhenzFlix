@@ -220,31 +220,29 @@ TREBLE<br>
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs=[
-"03 - Red Hot Chili Peppers - Californication.mp3",
-const songs = [
-"03 - Red Hot Chili Peppers - Californication.mp3",
-"04 - Avenged Sevenfold - Buried Alive.mp3",
-"05 - Red Hot Chili Peppers - Scar Tissue.mp3",
-"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
-"07 - Red Hot Chili Peppers - Otherside.mp3",
-"08 - Red Hot Chili Peppers - By the Way.mp3",
-"09 - Red Hot Chili Peppers - Dani California.mp3",
-"10 - Avenged Sevenfold - Unholy Confessions.mp3",
-"11 - Red Hot Chili Peppers - Dark Necessities.mp3",
-"13 - Avenged Sevenfold - Seize the Day.mp3",
-"14 - Avenged Sevenfold - Nobody.mp3",
-"18 - Avenged Sevenfold - Blinded in Chains.mp3",
-"35 - Avenged Sevenfold - 4_00 AM.mp3",
-"37 - Avenged Sevenfold - Crossroads.mp3",
-"07 - Linkin Park - What I've Done.mp3",
-"13 - Linkin Park - Bleed It Out.mp3",
-"15 - Linkin Park - Given Up.mp3",
-"29 - Linkin Park - In Pieces.mp3",
-"31 - Linkin Park - New Divide.mp3",
-"33 - Linkin Park - Valentines Day.mp3",
-"36 - Linkin Park - Hands Held High.mp3",
-"17 - JAY-Z - Numb _ Encore.mp3",
-"35 - JAY-Z - Dirt Off Your Shoulder.mp3"
+"californication.mp3",
+"buried_alive.mp3",
+"scar_tissue.mp3",
+"snow.mp3",
+"otherside.mp3",
+"by_the_way.mp3",
+"dani_california.mp3",
+"unholy_confessions.mp3",
+"dark_necessities.mp3",
+"seize_the_day.mp3",
+"nobody.mp3",
+"blinded_in_chains.mp3",
+"four_am.mp3",
+"crossroads.mp3",
+"what_ive_done.mp3",
+"bleed_it_out.mp3",
+"given_up.mp3",
+"in_pieces.mp3",
+"new_divide.mp3",
+"valentines_day.mp3",
+"hands_held_high.mp3",
+"numb_encore.mp3",
+"dirt_off_your_shoulder.mp3"
 ];
 
 let current=0;
@@ -271,7 +269,7 @@ panel.style.display=(panel.style.display==="block")?"none":"block";
 }
 
 function loadSong(i){
-audio.src=repoBase+encodeURIComponent(songs[i]);
+audio.src=repoBase+songs[i];
 document.getElementById("title").innerText=songs[i];
 }
 
@@ -311,6 +309,8 @@ progress.addEventListener("input",()=>{
 audio.currentTime=progress.value;
 });
 
+audio.addEventListener("ended",nextSong);
+
 function formatTime(time){
 let min=Math.floor(time/60);
 let sec=Math.floor(time%60);
@@ -318,44 +318,14 @@ if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
 
-/* ===== AUDIO CONTEXT (EQ + VISUALIZER SAME CONTEXT) ===== */
 const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 const source=audioCtx.createMediaElementSource(audio);
-
 const analyser=audioCtx.createAnalyser();
 analyser.fftSize=256;
 
-/* EQ Filters */
-const sub=audioCtx.createBiquadFilter();
-sub.type="lowshelf";
-sub.frequency.value=60;
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
 
-const bass=audioCtx.createBiquadFilter();
-bass.type="lowshelf";
-bass.frequency.value=150;
-
-const mid=audioCtx.createBiquadFilter();
-mid.type="peaking";
-mid.frequency.value=1000;
-mid.Q.value=1;
-
-const treble=audioCtx.createBiquadFilter();
-treble.type="highshelf";
-treble.frequency.value=4000;
-
-source.connect(sub)
-.connect(bass)
-.connect(mid)
-.connect(treble)
-.connect(analyser)
-.connect(audioCtx.destination);
-
-document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
-document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
-document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
-document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
-
-/* VISUALIZER */
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
@@ -367,29 +337,21 @@ const dataArray=new Uint8Array(bufferLength);
 function draw(){
 requestAnimationFrame(draw);
 analyser.getByteFrequencyData(dataArray);
-
 ctx.clearRect(0,0,canvas.width,canvas.height);
-
 let barWidth=(canvas.width/bufferLength)*2;
 let x=0;
-
 for(let i=0;i<bufferLength;i++){
 let barHeight=dataArray[i];
-let gradient=ctx.createLinearGradient(0,0,0,canvas.height);
-gradient.addColorStop(0,"#ff0000");
-gradient.addColorStop(1,"#ff66cc");
-ctx.fillStyle=gradient;
+ctx.fillStyle="red";
 ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
 x+=barWidth+1;
 }
 }
 
 audio.addEventListener("play",()=>audioCtx.resume());
-
 draw();
 loadSong(current);
 
 </script>
-
 </body>
 </html>
