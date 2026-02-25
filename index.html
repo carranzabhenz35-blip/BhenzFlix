@@ -15,7 +15,7 @@ text-align:center;
 }
 
 .overlay{
-background:rgba(0,0,0,0.75);
+background:rgba(0,0,0,0.80);
 min-height:100vh;
 padding-top:30px;
 }
@@ -23,14 +23,45 @@ padding-top:30px;
 h1{
 color:red;
 text-shadow:0 0 20px red;
+margin-bottom:15px;
 }
 
-audio{
-width:90%;
+/* PREMIUM CONTROLS */
+.premiumControls{
 margin-top:15px;
 }
 
+.premiumControls button{
+background:linear-gradient(145deg,#ff0000,#990000);
+border:none;
+color:white;
+font-size:22px;
+margin:8px;
+padding:15px 20px;
+border-radius:50%;
+box-shadow:0 0 15px red;
+cursor:pointer;
+transition:0.3s;
+}
+
+.premiumControls button:hover{
+transform:scale(1.1);
+box-shadow:0 0 25px red;
+}
+
+.toggleBtn{
+margin-top:10px;
+padding:8px 15px;
+background:red;
+border:none;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+/* PLAYLIST */
 #playlist{
+display:none;
 margin-top:20px;
 width:90%;
 margin:auto;
@@ -49,6 +80,7 @@ cursor:pointer;
 background:rgba(255,0,0,0.4);
 }
 
+/* EQ PANEL */
 #eqPanel{
 display:none;
 margin-top:15px;
@@ -56,8 +88,7 @@ background:rgba(0,0,0,0.7);
 padding:10px;
 border-radius:10px;
 width:90%;
-margin-left:auto;
-margin-right:auto;
+margin:auto;
 }
 
 #eqPanel input{
@@ -69,16 +100,6 @@ width:100%;
 height:120px;
 margin-top:20px;
 }
-
-.settingsBtn{
-margin-top:10px;
-padding:8px 15px;
-background:red;
-border:none;
-color:white;
-cursor:pointer;
-border-radius:5px;
-}
 </style>
 </head>
 
@@ -88,9 +109,18 @@ border-radius:5px;
 
 <h1>🔥 BhenzFlix Music 🔥</h1>
 
-<audio id="audio" controls></audio>
+<audio id="audio"></audio>
 
-<button class="settingsBtn" onclick="toggleEQ()">⚙ Equalizer</button>
+<div class="premiumControls">
+<button onclick="prevSong()">⏮</button>
+<button id="playBtn" onclick="togglePlay()">▶</button>
+<button onclick="nextSong()">⏭</button>
+</div>
+
+<button class="toggleBtn" onclick="togglePlaylist()">🎵 Playlist</button>
+<button class="toggleBtn" onclick="toggleEQ()">⚙ Equalizer</button>
+
+<div id="playlist"></div>
 
 <div id="eqPanel">
 SUB<br>
@@ -103,15 +133,12 @@ TREBLE<br>
 <input type="range" id="treble" min="-30" max="30" value="0">
 </div>
 
-<div id="playlist"></div>
-
 <canvas id="visualizer"></canvas>
 
 </div>
 
 <script>
 
-// SONG LIST
 const songs = [
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "04 - Avenged Sevenfold - Buried Alive.mp3",
@@ -124,30 +151,63 @@ const songs = [
 
 const audio = document.getElementById("audio");
 const playlist = document.getElementById("playlist");
+const playBtn = document.getElementById("playBtn");
 
-songs.forEach(song=>{
+let currentIndex = 0;
+
+/* LOAD SONG */
+function loadSong(index){
+currentIndex = index;
+audio.src = songs[index];
+audio.play();
+playBtn.innerText = "⏸";
+}
+
+/* PLAY / PAUSE */
+function togglePlay(){
+if(audio.paused){
+audio.play();
+playBtn.innerText = "⏸";
+}else{
+audio.pause();
+playBtn.innerText = "▶";
+}
+}
+
+/* NEXT / PREV */
+function nextSong(){
+currentIndex = (currentIndex + 1) % songs.length;
+loadSong(currentIndex);
+}
+
+function prevSong(){
+currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+loadSong(currentIndex);
+}
+
+/* AUTO NEXT */
+audio.addEventListener("ended", nextSong);
+
+/* CREATE PLAYLIST */
+songs.forEach((song,index)=>{
 let div=document.createElement("div");
 div.innerText=song;
-div.onclick=()=>{
-audio.src=song;
-audio.play();
-};
+div.onclick=()=>{ loadSong(index); };
 playlist.appendChild(div);
 });
 
-audio.src=songs[0];
+/* TOGGLE PANELS */
+function togglePlaylist(){
+playlist.style.display = playlist.style.display==="block"?"none":"block";
+}
 
-// TOGGLE EQ
 function toggleEQ(){
 let panel=document.getElementById("eqPanel");
-panel.style.display = panel.style.display==="block" ? "none":"block";
+panel.style.display = panel.style.display==="block"?"none":"block";
 }
 
 /* AUDIO CONTEXT */
-let audioCtx;
-let source;
-let analyser;
-let sub,bass,mid,treble;
+let audioCtx, source, analyser, sub, bass, mid, treble;
 
 audio.addEventListener("play",()=>{
 
@@ -155,26 +215,20 @@ if(!audioCtx){
 
 audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 source=audioCtx.createMediaElementSource(audio);
-
 analyser=audioCtx.createAnalyser();
 analyser.fftSize=256;
 
 sub=audioCtx.createBiquadFilter();
-sub.type="lowshelf";
-sub.frequency.value=60;
+sub.type="lowshelf"; sub.frequency.value=60;
 
 bass=audioCtx.createBiquadFilter();
-bass.type="lowshelf";
-bass.frequency.value=150;
+bass.type="lowshelf"; bass.frequency.value=150;
 
 mid=audioCtx.createBiquadFilter();
-mid.type="peaking";
-mid.frequency.value=1000;
-mid.Q.value=1;
+mid.type="peaking"; mid.frequency.value=1000; mid.Q.value=1;
 
 treble=audioCtx.createBiquadFilter();
-treble.type="highshelf";
-treble.frequency.value=4000;
+treble.type="highshelf"; treble.frequency.value=4000;
 
 source.connect(sub)
 .connect(bass)
@@ -223,6 +277,9 @@ x+=barWidth+1;
 
 draw();
 }
+
+/* LOAD FIRST */
+audio.src = songs[0];
 
 </script>
 
