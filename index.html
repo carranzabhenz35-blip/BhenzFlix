@@ -11,7 +11,12 @@ font-family:Arial;
 background:radial-gradient(circle,#300000,black);
 color:white;
 text-align:center;
-overflow-x:hidden;
+transition:0.4s;
+}
+
+body.light{
+background:#f2f2f2;
+color:#111;
 }
 
 .topbar{
@@ -62,28 +67,22 @@ to{transform:rotate(360deg);}
 background:rgba(255,0,0,0.2);
 border:none;
 color:white;
-font-size:20px;
-margin:8px;
-padding:12px 16px;
-border-radius:15px;
-box-shadow:0 0 15px red;
+font-size:18px;
+margin:6px;
+padding:10px 14px;
+border-radius:12px;
+box-shadow:0 0 10px red;
 cursor:pointer;
 }
 
-.controls button:hover{
-background:red;
-}
-
-/* TIME BAR */
+.controls button:hover{background:red;}
 
 .progress-container{
 width:85%;
 margin:10px auto;
 }
 
-#progress{
-width:100%;
-}
+#progress{width:100%;}
 
 .time{
 display:flex;
@@ -92,15 +91,11 @@ font-size:12px;
 opacity:0.7;
 }
 
-/* VISUALIZER */
-
 canvas{
 width:100%;
 height:120px;
 margin-top:10px;
 }
-
-/* PLAYLIST */
 
 .playlist{
 position:fixed;
@@ -111,12 +106,9 @@ max-height:300px;
 background:#111;
 overflow-y:auto;
 transition:0.4s;
-box-shadow:0 -5px 20px red;
 }
 
-.playlist.active{
-bottom:0;
-}
+.playlist.active{bottom:0;}
 
 .song{
 padding:10px;
@@ -124,16 +116,43 @@ border-bottom:1px solid #222;
 cursor:pointer;
 }
 
-.song.active{
-color:#00ffcc;
+.song.active{color:#00ffcc;}
+
+.settings-panel{
+position:fixed;
+bottom:-350px;
+left:0;
+width:100%;
+height:300px;
+background:#111;
+transition:0.4s;
+padding-top:10px;
 }
 
-/* FLOAT BUTTONS */
+.settings-panel.active{bottom:0;}
 
-.song-btn{
+.eq-container{
+display:flex;
+justify-content:space-around;
+height:200px;
+}
+
+.eq{
+display:flex;
+flex-direction:column;
+align-items:center;
+font-size:12px;
+}
+
+.eq input{
+writing-mode:bt-lr;
+-webkit-appearance:slider-vertical;
+height:160px;
+}
+
+.song-btn, .settings-btn{
 position:fixed;
 bottom:20px;
-left:20px;
 background:red;
 color:white;
 border:none;
@@ -144,18 +163,11 @@ box-shadow:0 0 15px red;
 cursor:pointer;
 }
 
-.eq-btn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:red;
-color:white;
-border:none;
-padding:12px 15px;
-border-radius:50%;
-font-size:18px;
-box-shadow:0 0 15px red;
-cursor:pointer;
+.song-btn{left:20px;}
+.settings-btn{right:20px;}
+
+.toggle-buttons{
+margin-top:5px;
 }
 </style>
 </head>
@@ -190,6 +202,8 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 <button onclick="prevSong()">⏮</button>
 <button id="playBtn" onclick="togglePlay()">▶</button>
 <button onclick="nextSong()">⏭</button>
+<button onclick="toggleShuffle()">🔀</button>
+<button onclick="toggleRepeat()">🔁</button>
 </div>
 
 <div class="progress-container">
@@ -203,92 +217,98 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 <canvas id="visualizer"></canvas>
 
 <button class="song-btn" onclick="togglePlaylist()">🎵</button>
-<button class="eq-btn">🎚</button>
+<button class="settings-btn" onclick="toggleSettings()">⚙️</button>
 
 <div class="playlist" id="playlist"></div>
+
+<div class="settings-panel" id="settingsPanel">
+<h3>Settings</h3>
+
+<div class="toggle-buttons">
+<button onclick="toggleTheme()">🌗 Toggle Theme</button>
+</div>
+
+<h4>Equalizer</h4>
+<div class="eq-container">
+
+<div class="eq">
+<label>BASS</label>
+<input type="range" min="-30" max="30" value="0" id="bass">
+</div>
+
+<div class="eq">
+<label>MID</label>
+<input type="range" min="-30" max="30" value="0" id="mid">
+</div>
+
+<div class="eq">
+<label>TREBLE</label>
+<input type="range" min="-30" max="30" value="0" id="treble">
+</div>
+
+</div>
+</div>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
 <script>
-
 const repoBase="https://raw.githubusercontent.com/carranzabhenz35-blip/BhenzFlix/main/";
 
 const songs=[
 "03 - Red Hot Chili Peppers - Californication.mp3",
-"04 - Avenged Sevenfold - Buried Alive.mp3",
-"05 - Red Hot Chili Peppers - Scar Tissue.mp3",
-"06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
-"07 - Linkin Park - What I've Done.mp3",
-"07 - Red Hot Chili Peppers - Otherside.mp3",
-"08 - Red Hot Chili Peppers - By the Way.mp3",
-"09 - Red Hot Chili Peppers - Dani California.mp3",
-"10 - Avenged Sevenfold - Unholy Confessions.mp3",
-"11 - Red Hot Chili Peppers - Dark Necessities.mp3",
-"13 - Avenged Sevenfold - Seize the Day.mp3",
-"13 - Linkin Park - Bleed It Out.mp3",
-"14 - Avenged Sevenfold - Nobody.mp3",
-"14 - Red Hot Chili Peppers - Under The Bridge.mp3",
-"15 - Linkin Park - Given Up.mp3",
-"17 - JAY-Z - Numb _ Encore.mp3",
-"18 - Avenged Sevenfold - Blinded in Chains.mp3",
-"29 - Linkin Park - In Pieces.mp3",
-"31 - Linkin Park - New Divide.mp3",
-"33 - Linkin Park - Valentine's Day.mp3",
-"35 - Avenged Sevenfold - 4_00 AM.mp3",
-"35 - JAY-Z - Dirt Off Your Shoulder.mp3",
-"36 - Linkin Park - Hands Held High.mp3",
-"37 - Avenged Sevenfold - Crossroads.mp3"
+"04 - Avenged Sevenfold - Buried Alive.mp3"
 ];
 
 let current=0;
+let shuffle=false;
+let repeat=false;
 
 const audio=document.getElementById("audio");
 const playBtn=document.getElementById("playBtn");
 const progress=document.getElementById("progress");
-const currentTimeEl=document.getElementById("currentTime");
-const durationEl=document.getElementById("duration");
-const playlistDiv=document.getElementById("playlist");
 
 function loadSong(i){
 audio.src=encodeURI(repoBase+songs[i]);
 document.getElementById("title").innerText=songs[i];
-highlight();
 }
 
 function togglePlay(){
-if(audio.paused){
-audio.play();
-playBtn.innerText="⏸";
-}else{
-audio.pause();
-playBtn.innerText="▶";
-}
+if(audio.paused){audio.play();playBtn.innerText="⏸";}
+else{audio.pause();playBtn.innerText="▶";}
 }
 
 function nextSong(){
+if(shuffle){
+current=Math.floor(Math.random()*songs.length);
+}else{
 current=(current+1)%songs.length;
+}
 loadSong(current);
 audio.play();
-playBtn.innerText="⏸";
 }
 
 function prevSong(){
 current=(current-1+songs.length)%songs.length;
 loadSong(current);
 audio.play();
-playBtn.innerText="⏸";
 }
 
-audio.addEventListener("ended",nextSong);
+audio.addEventListener("ended",()=>{
+if(repeat){audio.play();}
+else{nextSong();}
+});
+
+function toggleShuffle(){shuffle=!shuffle;}
+function toggleRepeat(){repeat=!repeat;}
 
 audio.addEventListener("timeupdate",()=>{
 progress.value=audio.currentTime;
-currentTimeEl.innerText=formatTime(audio.currentTime);
+document.getElementById("currentTime").innerText=formatTime(audio.currentTime);
 });
 
 audio.addEventListener("loadedmetadata",()=>{
 progress.max=audio.duration;
-durationEl.innerText=formatTime(audio.duration);
+document.getElementById("duration").innerText=formatTime(audio.duration);
 });
 
 progress.addEventListener("input",()=>{
@@ -302,66 +322,19 @@ if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
 
-/* VISUALIZER */
-
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-const source=audioCtx.createMediaElementSource(audio);
-const analyser=audioCtx.createAnalyser();
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
-analyser.fftSize=256;
-
-const canvas=document.getElementById("visualizer");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=120;
-
-const bufferLength=analyser.frequencyBinCount;
-const dataArray=new Uint8Array(bufferLength);
-
-function draw(){
-requestAnimationFrame(draw);
-analyser.getByteFrequencyData(dataArray);
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-let barWidth=(canvas.width/bufferLength)*2;
-let x=0;
-
-for(let i=0;i<bufferLength;i++){
-let barHeight=dataArray[i];
-ctx.fillStyle="rgb("+(barHeight+100)+",0,0)";
-ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
-x+=barWidth+1;
-}
-}
-draw();
-
-/* PLAYLIST */
-
-function buildPlaylist(){
-playlistDiv.innerHTML="";
-songs.forEach((song,i)=>{
-const div=document.createElement("div");
-div.className="song";
-div.innerText=song;
-div.onclick=()=>{current=i;loadSong(i);audio.play();playBtn.innerText="⏸";togglePlaylist();};
-playlistDiv.appendChild(div);
-});
-}
-
-function highlight(){
-document.querySelectorAll(".song").forEach((el,i)=>{
-el.classList.toggle("active",i===current);
-});
-}
-
 function togglePlaylist(){
-playlistDiv.classList.toggle("active");
+document.getElementById("playlist").classList.toggle("active");
 }
 
-buildPlaylist();
-loadSong(current);
+function toggleSettings(){
+document.getElementById("settingsPanel").classList.toggle("active");
+}
 
+function toggleTheme(){
+document.body.classList.toggle("light");
+}
+
+loadSong(current);
 </script>
 
 </body>
