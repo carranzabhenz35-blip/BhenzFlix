@@ -15,7 +15,7 @@ text-align:center;
 }
 
 .overlay{
-background:rgba(0,0,0,0.80);
+background:rgba(0,0,0,0.85);
 min-height:100vh;
 padding-top:30px;
 }
@@ -23,48 +23,77 @@ padding-top:30px;
 h1{
 color:red;
 text-shadow:0 0 20px red;
-margin-bottom:15px;
 }
 
-/* PREMIUM CONTROLS */
-.premiumControls{
+/* CONTROLS */
+.controls{
 margin-top:15px;
 }
 
-.premiumControls button{
+.controls button{
 background:linear-gradient(145deg,#ff0000,#990000);
 border:none;
 color:white;
-font-size:22px;
+font-size:20px;
 margin:8px;
-padding:15px 20px;
+padding:15px 18px;
 border-radius:50%;
 box-shadow:0 0 15px red;
 cursor:pointer;
 transition:0.3s;
 }
 
-.premiumControls button:hover{
-transform:scale(1.1);
-box-shadow:0 0 25px red;
+.controls button:hover{
+transform:scale(1.15);
+box-shadow:0 0 30px red;
 }
 
-.toggleBtn{
-margin-top:10px;
-padding:8px 15px;
-background:red;
-border:none;
-color:white;
-border-radius:5px;
+.activeGlow{
+animation:pulse 1s infinite alternate;
+}
+
+@keyframes pulse{
+from{box-shadow:0 0 10px red;}
+to{box-shadow:0 0 30px red;}
+}
+
+/* PROGRESS */
+.progressContainer{
+width:90%;
+margin:20px auto;
+display:flex;
+align-items:center;
+gap:10px;
+font-size:12px;
+}
+
+#progressBar{
+-webkit-appearance:none;
+appearance:none;
+flex:1;
+height:8px;
+border-radius:10px;
+background:#444;
+outline:none;
+cursor:pointer;
+}
+
+#progressBar::-webkit-slider-thumb{
+-webkit-appearance:none;
+appearance:none;
+width:18px;
+height:18px;
+border-radius:50%;
+background:#ff0000;
+box-shadow:0 0 15px red;
 cursor:pointer;
 }
 
 /* PLAYLIST */
 #playlist{
 display:none;
-margin-top:20px;
 width:90%;
-margin:auto;
+margin:20px auto;
 background:rgba(0,0,0,0.6);
 border-radius:10px;
 padding:10px;
@@ -76,19 +105,18 @@ border-bottom:1px solid rgba(255,255,255,0.2);
 cursor:pointer;
 }
 
-#playlist div:hover{
-background:rgba(255,0,0,0.4);
+#playlist div.active{
+background:rgba(255,0,0,0.5);
 }
 
-/* EQ PANEL */
+/* EQ */
 #eqPanel{
 display:none;
-margin-top:15px;
+width:90%;
+margin:15px auto;
 background:rgba(0,0,0,0.7);
 padding:10px;
 border-radius:10px;
-width:90%;
-margin:auto;
 }
 
 #eqPanel input{
@@ -111,26 +139,30 @@ margin-top:20px;
 
 <audio id="audio"></audio>
 
-<div class="premiumControls">
+<div class="controls">
 <button onclick="prevSong()">⏮</button>
 <button id="playBtn" onclick="togglePlay()">▶</button>
 <button onclick="nextSong()">⏭</button>
+<button onclick="toggleShuffle()">🔀</button>
+<button onclick="toggleLoop()">🔁</button>
 </div>
 
-<button class="toggleBtn" onclick="togglePlaylist()">🎵 Playlist</button>
-<button class="toggleBtn" onclick="toggleEQ()">⚙ Equalizer</button>
+<div class="progressContainer">
+<span id="currentTime">0:00</span>
+<input type="range" id="progressBar" value="0" min="0" step="1">
+<span id="duration">0:00</span>
+</div>
+
+<button onclick="togglePlaylist()">🎵 Playlist</button>
+<button onclick="toggleEQ()">⚙ Equalizer</button>
 
 <div id="playlist"></div>
 
 <div id="eqPanel">
-SUB<br>
-<input type="range" id="sub" min="-30" max="30" value="0"><br>
-BASS<br>
-<input type="range" id="bass" min="-30" max="30" value="0"><br>
-MID<br>
-<input type="range" id="mid" min="-30" max="30" value="0"><br>
-TREBLE<br>
-<input type="range" id="treble" min="-30" max="30" value="0">
+SUB<br><input type="range" id="sub" min="-30" max="30" value="0"><br>
+BASS<br><input type="range" id="bass" min="-30" max="30" value="0"><br>
+MID<br><input type="range" id="mid" min="-30" max="30" value="0"><br>
+TREBLE<br><input type="range" id="treble" min="-30" max="30" value="0">
 </div>
 
 <canvas id="visualizer"></canvas>
@@ -139,7 +171,7 @@ TREBLE<br>
 
 <script>
 
-const songs = [
+const songs=[
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
@@ -149,137 +181,111 @@ const songs = [
 "13 - Avenged Sevenfold - Seize the Day.mp3"
 ];
 
-const audio = document.getElementById("audio");
-const playlist = document.getElementById("playlist");
-const playBtn = document.getElementById("playBtn");
+const audio=document.getElementById("audio");
+const playlist=document.getElementById("playlist");
+const playBtn=document.getElementById("playBtn");
+const progressBar=document.getElementById("progressBar");
+const currentTimeEl=document.getElementById("currentTime");
+const durationEl=document.getElementById("duration");
 
-let currentIndex = 0;
+let currentIndex=0;
+let isShuffle=false;
+let isLoop=false;
 
-/* LOAD SONG */
-function loadSong(index){
-currentIndex = index;
-audio.src = songs[index];
-audio.play();
-playBtn.innerText = "⏸";
+/* PLAYLIST BUILD */
+songs.forEach((song,index)=>{
+let div=document.createElement("div");
+div.innerText=song;
+div.onclick=()=>loadSong(index);
+playlist.appendChild(div);
+});
+
+function highlight(){
+document.querySelectorAll("#playlist div").forEach((el,i)=>{
+el.classList.toggle("active",i===currentIndex);
+});
 }
 
-/* PLAY / PAUSE */
+function loadSong(index){
+currentIndex=index;
+audio.src=songs[index];
+audio.play();
+playBtn.innerText="⏸";
+highlight();
+}
+
 function togglePlay(){
 if(audio.paused){
 audio.play();
-playBtn.innerText = "⏸";
+playBtn.innerText="⏸";
 }else{
 audio.pause();
-playBtn.innerText = "▶";
+playBtn.innerText="▶";
 }
 }
 
-/* NEXT / PREV */
 function nextSong(){
-currentIndex = (currentIndex + 1) % songs.length;
+if(isShuffle){
+currentIndex=Math.floor(Math.random()*songs.length);
+}else{
+currentIndex=(currentIndex+1)%songs.length;
+}
 loadSong(currentIndex);
 }
 
 function prevSong(){
-currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+currentIndex=(currentIndex-1+songs.length)%songs.length;
 loadSong(currentIndex);
 }
 
-/* AUTO NEXT */
-audio.addEventListener("ended", nextSong);
+function toggleShuffle(){
+isShuffle=!isShuffle;
+alert("Shuffle: "+(isShuffle?"ON":"OFF"));
+}
 
-/* CREATE PLAYLIST */
-songs.forEach((song,index)=>{
-let div=document.createElement("div");
-div.innerText=song;
-div.onclick=()=>{ loadSong(index); };
-playlist.appendChild(div);
+function toggleLoop(){
+isLoop=!isLoop;
+audio.loop=isLoop;
+alert("Loop: "+(isLoop?"ON":"OFF"));
+}
+
+audio.addEventListener("ended",()=>{
+if(!isLoop) nextSong();
 });
 
-/* TOGGLE PANELS */
+audio.addEventListener("timeupdate",()=>{
+progressBar.value=audio.currentTime;
+currentTimeEl.textContent=formatTime(audio.currentTime);
+});
+
+audio.addEventListener("loadedmetadata",()=>{
+progressBar.max=audio.duration;
+durationEl.textContent=formatTime(audio.duration);
+});
+
+progressBar.addEventListener("input",()=>{
+audio.currentTime=progressBar.value;
+});
+
+function formatTime(t){
+let m=Math.floor(t/60);
+let s=Math.floor(t%60);
+if(s<10) s="0"+s;
+return m+":"+s;
+}
+
 function togglePlaylist(){
-playlist.style.display = playlist.style.display==="block"?"none":"block";
+playlist.style.display=playlist.style.display==="block"?"none":"block";
 }
 
 function toggleEQ(){
-let panel=document.getElementById("eqPanel");
-panel.style.display = panel.style.display==="block"?"none":"block";
-}
-
-/* AUDIO CONTEXT */
-let audioCtx, source, analyser, sub, bass, mid, treble;
-
-audio.addEventListener("play",()=>{
-
-if(!audioCtx){
-
-audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-source=audioCtx.createMediaElementSource(audio);
-analyser=audioCtx.createAnalyser();
-analyser.fftSize=256;
-
-sub=audioCtx.createBiquadFilter();
-sub.type="lowshelf"; sub.frequency.value=60;
-
-bass=audioCtx.createBiquadFilter();
-bass.type="lowshelf"; bass.frequency.value=150;
-
-mid=audioCtx.createBiquadFilter();
-mid.type="peaking"; mid.frequency.value=1000; mid.Q.value=1;
-
-treble=audioCtx.createBiquadFilter();
-treble.type="highshelf"; treble.frequency.value=4000;
-
-source.connect(sub)
-.connect(bass)
-.connect(mid)
-.connect(treble)
-.connect(analyser)
-.connect(audioCtx.destination);
-
-document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
-document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
-document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
-document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
-
-startVisualizer();
-
-}
-
-});
-
-/* VISUALIZER */
-function startVisualizer(){
-
-const canvas=document.getElementById("visualizer");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=120;
-
-const bufferLength=analyser.frequencyBinCount;
-const dataArray=new Uint8Array(bufferLength);
-
-function draw(){
-requestAnimationFrame(draw);
-analyser.getByteFrequencyData(dataArray);
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-let barWidth=(canvas.width/bufferLength)*2;
-let x=0;
-
-for(let i=0;i<bufferLength;i++){
-let barHeight=dataArray[i];
-ctx.fillStyle="red";
-ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
-x+=barWidth+1;
-}
-}
-
-draw();
+let eq=document.getElementById("eqPanel");
+eq.style.display=eq.style.display==="block"?"none":"block";
 }
 
 /* LOAD FIRST */
-audio.src = songs[0];
+audio.src=songs[0];
+highlight();
 
 </script>
 
