@@ -2,54 +2,69 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>BhenzFlix Music</title>
+<title>BhenzFlix Music PRO</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:radial-gradient(circle,#300000,black);
+background:radial-gradient(circle at top,#400000,#000);
 color:white;
 text-align:center;
-transition:0.4s;
+overflow-x:hidden;
 }
 
-body.light{
-background:#f2f2f2;
-color:#111;
+/* GLASS PANEL */
+.glass{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,0,0,0.2);
+border-radius:20px;
+padding:15px;
+box-shadow:0 0 20px rgba(255,0,0,0.3);
+margin:10px auto;
+width:90%;
 }
 
+/* HEADER */
 .topbar{
 padding:15px;
-font-size:22px;
+font-size:24px;
 letter-spacing:4px;
-color:red;
+color:#ff2a2a;
 text-shadow:0 0 20px red;
 }
 
+/* ALBUM */
 .album-wrapper{
 position:relative;
-width:260px;
-height:260px;
+width:280px;
+height:280px;
 margin:20px auto;
 }
 
 .rotating-ring{
 position:absolute;
-width:260px;
-height:260px;
-animation:spin 12s linear infinite;
+width:280px;
+height:280px;
+animation:spin 10s linear infinite;
 }
 
 .album{
 position:absolute;
-top:30px;
-left:30px;
+top:40px;
+left:40px;
 width:200px;
 height:200px;
 border-radius:50%;
 overflow:hidden;
-box-shadow:0 0 40px red;
+box-shadow:0 0 50px red;
+transition:0.4s;
+}
+
+.album:hover{
+box-shadow:0 0 80px #ff0000;
+transform:scale(1.05);
 }
 
 #cover{
@@ -63,26 +78,35 @@ from{transform:rotate(0deg);}
 to{transform:rotate(360deg);}
 }
 
+/* CONTROLS */
 .controls button{
 background:rgba(255,0,0,0.2);
 border:none;
 color:white;
 font-size:18px;
 margin:6px;
-padding:10px 14px;
-border-radius:12px;
-box-shadow:0 0 10px red;
+padding:12px 16px;
+border-radius:15px;
+box-shadow:0 0 15px red;
 cursor:pointer;
+transition:0.3s;
 }
 
-.controls button:hover{background:red;}
+.controls button:hover{
+background:red;
+transform:scale(1.1);
+}
 
+/* TIME BAR */
 .progress-container{
 width:85%;
 margin:10px auto;
 }
 
-#progress{width:100%;}
+#progress{
+width:100%;
+accent-color:red;
+}
 
 .time{
 display:flex;
@@ -91,97 +115,47 @@ font-size:12px;
 opacity:0.7;
 }
 
+/* VISUALIZER */
 canvas{
 width:100%;
-height:120px;
+height:140px;
 margin-top:10px;
 }
 
-.playlist{
-position:fixed;
-left:0;
-bottom:-400px;
-width:100%;
-max-height:300px;
-background:#111;
-overflow-y:auto;
-transition:0.4s;
-}
-
-.playlist.active{bottom:0;}
-
-.song{
-padding:10px;
-border-bottom:1px solid #222;
-cursor:pointer;
-}
-
-.song.active{color:#00ffcc;}
-
-.settings-panel{
-position:fixed;
-bottom:-350px;
-left:0;
-width:100%;
-height:300px;
-background:#111;
-transition:0.4s;
-padding-top:10px;
-}
-
-.settings-panel.active{bottom:0;}
-
-.eq-container{
-display:flex;
-justify-content:space-around;
-height:200px;
-}
-
-.eq{
-display:flex;
-flex-direction:column;
-align-items:center;
-font-size:12px;
-}
-
-.eq input{
-writing-mode:bt-lr;
--webkit-appearance:slider-vertical;
-height:160px;
-}
-
+/* FLOAT BUTTONS */
 .song-btn, .settings-btn{
 position:fixed;
 bottom:20px;
 background:red;
 color:white;
 border:none;
-padding:12px 15px;
+padding:14px 16px;
 border-radius:50%;
 font-size:18px;
-box-shadow:0 0 15px red;
+box-shadow:0 0 20px red;
 cursor:pointer;
+transition:0.3s;
+}
+
+.song-btn:hover, .settings-btn:hover{
+transform:scale(1.2);
 }
 
 .song-btn{left:20px;}
 .settings-btn{right:20px;}
-
-.toggle-buttons{
-margin-top:5px;
-}
 </style>
 </head>
 
 <body>
 
-<div class="topbar">🎵 BHENZFLIX MUSIC</div>
+<div class="topbar">🔥 BHENZFLIX MUSIC PRO 🔥</div>
 
 <div class="album-wrapper">
 <div class="rotating-ring">
-<svg viewBox="0 0 260 260">
+<svg viewBox="0 0 280 280">
 <defs>
 <path id="circlePath"
-d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
+d="M140,140 m-125,0 a125,125 0 1,1 250,0 a125,125 0 1,1 -250,0"/>
 </defs>
 <text fill="red" font-size="14" letter-spacing="3">
 <textPath href="#circlePath">
@@ -192,18 +166,17 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 </div>
 
 <div class="album">
-<img id="cover" src="https://picsum.photos/400/400?random=1">
+<img id="cover" src="file_00000000e5647209a6f0034bc9238384.png">
 </div>
 </div>
 
+<div class="glass">
 <div id="title">Loading...</div>
 
 <div class="controls">
 <button onclick="prevSong()">⏮</button>
 <button id="playBtn" onclick="togglePlay()">▶</button>
 <button onclick="nextSong()">⏭</button>
-<button onclick="toggleShuffle()">🔀</button>
-<button onclick="toggleRepeat()">🔁</button>
 </div>
 
 <div class="progress-container">
@@ -213,41 +186,12 @@ d="M130,130 m-115,0 a115,115 0 1,1 230,0 a115,115 0 1,1 -230,0"/>
 <span id="duration">0:00</span>
 </div>
 </div>
+</div>
 
 <canvas id="visualizer"></canvas>
 
-<button class="song-btn" onclick="togglePlaylist()">🎵</button>
-<button class="settings-btn" onclick="toggleSettings()">⚙️</button>
-
-<div class="playlist" id="playlist"></div>
-
-<div class="settings-panel" id="settingsPanel">
-<h3>Settings</h3>
-
-<div class="toggle-buttons">
-<button onclick="toggleTheme()">🌗 Toggle Theme</button>
-</div>
-
-<h4>Equalizer</h4>
-<div class="eq-container">
-
-<div class="eq">
-<label>BASS</label>
-<input type="range" min="-30" max="30" value="0" id="bass">
-</div>
-
-<div class="eq">
-<label>MID</label>
-<input type="range" min="-30" max="30" value="0" id="mid">
-</div>
-
-<div class="eq">
-<label>TREBLE</label>
-<input type="range" min="-30" max="30" value="0" id="treble">
-</div>
-
-</div>
-</div>
+<button class="song-btn">🎵</button>
+<button class="settings-btn">⚙️</button>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -260,8 +204,6 @@ const songs=[
 ];
 
 let current=0;
-let shuffle=false;
-let repeat=false;
 
 const audio=document.getElementById("audio");
 const playBtn=document.getElementById("playBtn");
@@ -278,11 +220,7 @@ else{audio.pause();playBtn.innerText="▶";}
 }
 
 function nextSong(){
-if(shuffle){
-current=Math.floor(Math.random()*songs.length);
-}else{
 current=(current+1)%songs.length;
-}
 loadSong(current);
 audio.play();
 }
@@ -292,14 +230,6 @@ current=(current-1+songs.length)%songs.length;
 loadSong(current);
 audio.play();
 }
-
-audio.addEventListener("ended",()=>{
-if(repeat){audio.play();}
-else{nextSong();}
-});
-
-function toggleShuffle(){shuffle=!shuffle;}
-function toggleRepeat(){repeat=!repeat;}
 
 audio.addEventListener("timeupdate",()=>{
 progress.value=audio.currentTime;
@@ -322,17 +252,41 @@ if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
 
-function togglePlaylist(){
-document.getElementById("playlist").classList.toggle("active");
-}
+/* RGB VISUALIZER */
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+const source=audioCtx.createMediaElementSource(audio);
+const analyser=audioCtx.createAnalyser();
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+analyser.fftSize=256;
 
-function toggleSettings(){
-document.getElementById("settingsPanel").classList.toggle("active");
-}
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=140;
 
-function toggleTheme(){
-document.body.classList.toggle("light");
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
+
+function draw(){
+requestAnimationFrame(draw);
+analyser.getByteFrequencyData(dataArray);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let barWidth=(canvas.width/bufferLength)*2;
+let x=0;
+
+for(let i=0;i<bufferLength;i++){
+let barHeight=dataArray[i];
+let r=barHeight+100;
+let g=50+i*2;
+let b=150;
+ctx.fillStyle="rgb("+r+","+g+","+b+")";
+ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
+x+=barWidth+1;
 }
+}
+draw();
 
 loadSong(current);
 </script>
