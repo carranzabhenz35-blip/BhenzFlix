@@ -8,12 +8,8 @@
 body{
 margin:0;
 font-family:Arial, sans-serif;
-background-color:black;
-background-image:url("file_00000000e5647209a6f0034bc9238384.png");
-background-repeat:no-repeat;
-background-position:center center;
+background:black url("file_00000000e5647209a6f0034bc9238384.png") no-repeat center center fixed;
 background-size:contain;
-background-attachment:fixed;
 color:white;
 text-align:center;
 }
@@ -21,24 +17,19 @@ text-align:center;
 .overlay{
 background:rgba(0,0,0,0.85);
 min-height:100vh;
-padding-top:30px;
+padding-top:25px;
 }
 
 h1{
 color:red;
 text-shadow:0 0 20px red;
+margin:10px 0;
 }
 
 #nowPlaying{
-margin-top:10px;
 font-size:14px;
-color:white;
+margin-bottom:10px;
 text-shadow:0 0 10px red;
-}
-
-/* CONTROLS */
-.controls{
-margin-top:15px;
 }
 
 .controls button{
@@ -47,55 +38,47 @@ border:none;
 color:white;
 font-size:20px;
 margin:8px;
-padding:15px 18px;
+padding:15px;
 border-radius:50%;
 box-shadow:0 0 15px red;
 cursor:pointer;
-transition:0.3s;
 }
 
 .controls button:hover{
-transform:scale(1.15);
-box-shadow:0 0 30px red;
+transform:scale(1.1);
 }
 
-/* PROGRESS */
-.progressContainer{
+.progressWrap{
 width:90%;
-margin:20px auto;
+margin:10px auto;
 display:flex;
 align-items:center;
-gap:10px;
+gap:8px;
 font-size:12px;
 }
 
-#progressBar{
--webkit-appearance:none;
-appearance:none;
+#progress{
 flex:1;
 height:8px;
 border-radius:10px;
 background:#444;
-outline:none;
-cursor:pointer;
+appearance:none;
 }
 
-#progressBar::-webkit-slider-thumb{
--webkit-appearance:none;
+#progress::-webkit-slider-thumb{
 appearance:none;
 width:18px;
 height:18px;
 border-radius:50%;
-background:#ff0000;
-box-shadow:0 0 15px red;
+background:red;
+box-shadow:0 0 10px red;
 cursor:pointer;
 }
 
-/* PLAYLIST */
 #playlist{
 display:none;
 width:90%;
-margin:20px auto;
+margin:15px auto;
 background:rgba(0,0,0,0.6);
 border-radius:10px;
 padding:10px;
@@ -111,11 +94,10 @@ cursor:pointer;
 background:rgba(255,0,0,0.5);
 }
 
-/* EQ */
 #eqPanel{
 display:none;
 width:90%;
-margin:15px auto;
+margin:10px auto;
 background:rgba(0,0,0,0.7);
 padding:10px;
 border-radius:10px;
@@ -125,21 +107,19 @@ border-radius:10px;
 width:80%;
 }
 
-/* VISUALIZER */
 canvas{
 width:100%;
 height:120px;
-margin-top:20px;
+margin-top:15px;
 }
 </style>
 </head>
 
 <body>
-
 <div class="overlay">
 
 <h1>🔥 BhenzFlix Music 🔥</h1>
-<h3 id="nowPlaying"></h3>
+<div id="nowPlaying"></div>
 
 <audio id="audio"></audio>
 
@@ -151,9 +131,9 @@ margin-top:20px;
 <button onclick="toggleLoop()">🔁</button>
 </div>
 
-<div class="progressContainer">
-<span id="currentTime">0:00</span>
-<input type="range" id="progressBar" value="0" min="0" step="1">
+<div class="progressWrap">
+<span id="current">0:00</span>
+<input type="range" id="progress" value="0" min="0" step="1">
 <span id="duration">0:00</span>
 </div>
 
@@ -188,19 +168,56 @@ const songs=[
 const audio=document.getElementById("audio");
 const playlist=document.getElementById("playlist");
 const playBtn=document.getElementById("playBtn");
-const progressBar=document.getElementById("progressBar");
-const currentTimeEl=document.getElementById("currentTime");
-const durationEl=document.getElementById("duration");
+const progress=document.getElementById("progress");
+const current=document.getElementById("current");
+const duration=document.getElementById("duration");
 const nowPlaying=document.getElementById("nowPlaying");
 
 let currentIndex=0;
-let isShuffle=false;
-let isLoop=false;
+let shuffle=false;
+let loop=false;
 
-/* BUILD PLAYLIST */
+/* AUDIO CONTEXT */
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+const source=audioCtx.createMediaElementSource(audio);
+
+const sub=audioCtx.createBiquadFilter();
+sub.type="lowshelf";
+sub.frequency.value=60;
+
+const bass=audioCtx.createBiquadFilter();
+bass.type="lowshelf";
+bass.frequency.value=150;
+
+const mid=audioCtx.createBiquadFilter();
+mid.type="peaking";
+mid.frequency.value=1000;
+mid.Q.value=1;
+
+const treble=audioCtx.createBiquadFilter();
+treble.type="highshelf";
+treble.frequency.value=4000;
+
+const analyser=audioCtx.createAnalyser();
+analyser.fftSize=256;
+
+source.connect(sub)
+.connect(bass)
+.connect(mid)
+.connect(treble)
+.connect(analyser)
+.connect(audioCtx.destination);
+
+/* EQ */
+document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
+document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
+document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
+document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
+
+/* PLAYLIST */
 songs.forEach((song,index)=>{
 let div=document.createElement("div");
-div.innerText=song;
+div.textContent=song;
 div.onclick=()=>loadSong(index);
 playlist.appendChild(div);
 });
@@ -211,27 +228,29 @@ el.classList.toggle("active",i===currentIndex);
 });
 }
 
-function loadSong(index){
-currentIndex=index;
-audio.src=songs[index];
+function loadSong(i){
+currentIndex=i;
+audio.src=songs[i];
 audio.play();
-playBtn.innerText="⏸";
+audioCtx.resume();
+playBtn.textContent="⏸";
+nowPlaying.textContent="Now Playing: "+songs[i];
 highlight();
-nowPlaying.textContent="Now Playing: "+songs[index];
 }
 
 function togglePlay(){
 if(audio.paused){
 audio.play();
-playBtn.innerText="⏸";
+audioCtx.resume();
+playBtn.textContent="⏸";
 }else{
 audio.pause();
-playBtn.innerText="▶";
+playBtn.textContent="▶";
 }
 }
 
 function nextSong(){
-if(isShuffle){
+if(shuffle){
 currentIndex=Math.floor(Math.random()*songs.length);
 }else{
 currentIndex=(currentIndex+1)%songs.length;
@@ -245,32 +264,28 @@ loadSong(currentIndex);
 }
 
 function toggleShuffle(){
-isShuffle=!isShuffle;
-alert("Shuffle: "+(isShuffle?"ON":"OFF"));
+shuffle=!shuffle;
+alert("Shuffle: "+(shuffle?"ON":"OFF"));
 }
 
 function toggleLoop(){
-isLoop=!isLoop;
-audio.loop=isLoop;
-alert("Loop: "+(isLoop?"ON":"OFF"));
+loop=!loop;
+audio.loop=loop;
+alert("Loop: "+(loop?"ON":"OFF"));
 }
 
-audio.addEventListener("ended",()=>{
-if(!isLoop) nextSong();
-});
-
 audio.addEventListener("timeupdate",()=>{
-progressBar.value=audio.currentTime;
-currentTimeEl.textContent=formatTime(audio.currentTime);
+progress.value=audio.currentTime;
+current.textContent=formatTime(audio.currentTime);
 });
 
 audio.addEventListener("loadedmetadata",()=>{
-progressBar.max=audio.duration;
-durationEl.textContent=formatTime(audio.duration);
+progress.max=audio.duration;
+duration.textContent=formatTime(audio.duration);
 });
 
-progressBar.addEventListener("input",()=>{
-audio.currentTime=progressBar.value;
+progress.addEventListener("input",()=>{
+audio.currentTime=progress.value;
 });
 
 function formatTime(t){
@@ -290,21 +305,6 @@ eq.style.display=eq.style.display==="block"?"none":"block";
 }
 
 /* VISUALIZER */
-let audioCtx, analyser, source;
-
-audio.addEventListener("play",()=>{
-if(!audioCtx){
-audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-source=audioCtx.createMediaElementSource(audio);
-analyser=audioCtx.createAnalyser();
-analyser.fftSize=256;
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
-startVisualizer();
-}
-});
-
-function startVisualizer(){
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
@@ -327,9 +327,8 @@ x+=barWidth+1;
 }
 }
 draw();
-}
 
-/* LOAD FIRST */
+/* START */
 loadSong(0);
 
 </script>
