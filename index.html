@@ -94,10 +94,26 @@ width:90%;
 margin:auto;
 }
 
-canvas{
-width:100%;
-height:130px;
+#playlist{
+display:none;
 margin-top:10px;
+max-height:250px;
+overflow-y:auto;
+}
+
+#playlist div{
+padding:8px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+cursor:pointer;
+}
+
+#playlist div:hover{
+background:rgba(255,0,0,0.3);
+}
+
+#eqPanel{
+display:none;
+margin-top:15px;
 }
 
 .song-btn{
@@ -128,30 +144,11 @@ box-shadow:0 0 20px red;
 cursor:pointer;
 }
 
-#playlist{
-display:none;
-margin-top:10px;
-max-height:250px;
-overflow-y:auto;
-}
-
-#playlist div{
-padding:8px;
-border-bottom:1px solid rgba(255,255,255,0.1);
-cursor:pointer;
-}
-
-#playlist div:hover{
-background:rgba(255,0,0,0.3);
-}
-
-#eqPanel{
-display:none;
-margin-top:15px;
-}
-
-#eqPanel input{
-width:70px;
+#visualizer{
+width:100%;
+height:140px;
+display:block;
+margin-top:20px;
 }
 </style>
 </head>
@@ -319,10 +316,14 @@ if(sec<10) sec="0"+sec;
 return min+":"+sec;
 }
 
-/* EQUALIZER */
+/* ===== AUDIO CONTEXT (EQ + VISUALIZER SAME CONTEXT) ===== */
 const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 const source=audioCtx.createMediaElementSource(audio);
 
+const analyser=audioCtx.createAnalyser();
+analyser.fftSize=256;
+
+/* EQ Filters */
 const sub=audioCtx.createBiquadFilter();
 sub.type="lowshelf";
 sub.frequency.value=60;
@@ -340,13 +341,50 @@ const treble=audioCtx.createBiquadFilter();
 treble.type="highshelf";
 treble.frequency.value=4000;
 
-source.connect(sub).connect(bass).connect(mid).connect(treble).connect(audioCtx.destination);
+source.connect(sub)
+.connect(bass)
+.connect(mid)
+.connect(treble)
+.connect(analyser)
+.connect(audioCtx.destination);
 
 document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
 document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
 document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
 document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
 
+/* VISUALIZER */
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=140;
+
+const bufferLength=analyser.frequencyBinCount;
+const dataArray=new Uint8Array(bufferLength);
+
+function draw(){
+requestAnimationFrame(draw);
+analyser.getByteFrequencyData(dataArray);
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+let barWidth=(canvas.width/bufferLength)*2;
+let x=0;
+
+for(let i=0;i<bufferLength;i++){
+let barHeight=dataArray[i];
+let gradient=ctx.createLinearGradient(0,0,0,canvas.height);
+gradient.addColorStop(0,"#ff0000");
+gradient.addColorStop(1,"#ff66cc");
+ctx.fillStyle=gradient;
+ctx.fillRect(x,canvas.height-barHeight/1.5,barWidth,barHeight/1.5);
+x+=barWidth+1;
+}
+}
+
+audio.addEventListener("play",()=>audioCtx.resume());
+
+draw();
 loadSong(current);
 
 </script>
