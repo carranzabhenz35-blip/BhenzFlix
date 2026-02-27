@@ -28,7 +28,6 @@ text-shadow:0 0 20px red;
 #nowPlaying{
 font-size:14px;
 margin-bottom:10px;
-text-shadow:0 0 10px red;
 }
 
 .controls button{
@@ -119,8 +118,6 @@ margin-top:15px;
 <button onclick="prevSong()">⏮</button>
 <button id="playBtn" onclick="togglePlay()">▶</button>
 <button onclick="nextSong()">⏭</button>
-<button onclick="toggleShuffle()">🔀</button>
-<button onclick="toggleLoop()">🔁</button>
 </div>
 
 <div class="progressWrap">
@@ -147,7 +144,7 @@ TREBLE<br><input type="range" id="treble" min="-30" max="30" value="0">
 
 <script>
 
-/* ===== COMPLETE SONG LIST ===== */
+/* ===== FULL SONG LIST ===== */
 
 const songs = [
 
@@ -208,8 +205,6 @@ const duration=document.getElementById("duration");
 const nowPlaying=document.getElementById("nowPlaying");
 
 let currentIndex=0;
-let shuffle=false;
-let loop=false;
 
 /* BUILD PLAYLIST */
 songs.forEach((song,index)=>{
@@ -232,7 +227,6 @@ audio.play();
 playBtn.textContent="⏸";
 nowPlaying.textContent="Now Playing: "+songs[i];
 highlight();
-updateMediaSession();
 }
 
 function togglePlay(){
@@ -246,11 +240,7 @@ playBtn.textContent="▶";
 }
 
 function nextSong(){
-if(shuffle){
-currentIndex=Math.floor(Math.random()*songs.length);
-}else{
 currentIndex=(currentIndex+1)%songs.length;
-}
 loadSong(currentIndex);
 }
 
@@ -259,10 +249,7 @@ currentIndex=(currentIndex-1+songs.length)%songs.length;
 loadSong(currentIndex);
 }
 
-function toggleShuffle(){ shuffle=!shuffle; }
-function toggleLoop(){ loop=!loop; audio.loop=loop; }
-
-audio.addEventListener("ended",()=>{ if(!loop) nextSong(); });
+audio.addEventListener("ended",nextSong);
 
 audio.addEventListener("timeupdate",()=>{
 progress.value=audio.currentTime;
@@ -292,27 +279,7 @@ let eq=document.getElementById("eqPanel");
 eq.style.display=eq.style.display==="block"?"none":"block";
 }
 
-/* MEDIA SESSION */
-if ('mediaSession' in navigator) {
-function updateMediaSession(){
-navigator.mediaSession.metadata=new MediaMetadata({
-title:songs[currentIndex],
-artist:"BhenzFlix Music",
-album:"Custom Player",
-artwork:[{
-src:"file_00000000e5647209a6f0034bc9238384.png",
-sizes:"512x512",
-type:"image/png"
-}]
-});
-}
-navigator.mediaSession.setActionHandler('play',()=>audio.play());
-navigator.mediaSession.setActionHandler('pause',()=>audio.pause());
-navigator.mediaSession.setActionHandler('previoustrack',()=>prevSong());
-navigator.mediaSession.setActionHandler('nexttrack',()=>nextSong());
-}
-
-/* VISUALIZER */
+/* SIMPLE VISUALIZER */
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
