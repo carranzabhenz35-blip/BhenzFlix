@@ -17,13 +17,12 @@ text-align:center;
 .overlay{
 background:rgba(0,0,0,0.85);
 min-height:100vh;
-padding-top:25px;
+padding-top:20px;
 }
 
 h1{
 color:red;
 text-shadow:0 0 20px red;
-margin:10px 0;
 }
 
 #nowPlaying{
@@ -42,10 +41,6 @@ padding:15px;
 border-radius:50%;
 box-shadow:0 0 15px red;
 cursor:pointer;
-}
-
-.controls button:hover{
-transform:scale(1.1);
 }
 
 .progressWrap{
@@ -82,11 +77,12 @@ margin:15px auto;
 background:rgba(0,0,0,0.6);
 border-radius:10px;
 padding:10px;
+max-height:250px;
+overflow-y:auto;
 }
 
 #playlist div{
-padding:10px;
-border-bottom:1px solid rgba(255,255,255,0.2);
+padding:8px;
 cursor:pointer;
 }
 
@@ -101,10 +97,6 @@ margin:10px auto;
 background:rgba(0,0,0,0.7);
 padding:10px;
 border-radius:10px;
-}
-
-#eqPanel input{
-width:80%;
 }
 
 canvas{
@@ -155,9 +147,11 @@ TREBLE<br><input type="range" id="treble" min="-30" max="30" value="0">
 
 <script>
 
+/* ===== COMPLETE SONG LIST ===== */
+
 const songs = [
 
-/* ===== OPM ===== */
+/* OPM */
 "01 - Director's Cut.mp3",
 "02 - Seksi! Seksi!.mp3",
 "03 - Martyr Nyebara.mp3",
@@ -174,7 +168,7 @@ const songs = [
 "14 - K.K.K.mp3",
 "15 - Narda (Acoustic).mp3",
 
-/* ===== RED HOT CHILI PEPPERS ===== */
+/* RHCP */
 "03 - Red Hot Chili Peppers - Californication.mp3",
 "05 - Red Hot Chili Peppers - Scar Tissue.mp3",
 "06 - Red Hot Chili Peppers - Snow (Hey Oh).mp3",
@@ -183,26 +177,24 @@ const songs = [
 "13 - Red Hot Chili Peppers - By The Way.mp3",
 "13 - Red Hot Chili Peppers - Black Summer.mp3",
 "14 - Red Hot Chili Peppers - Dani California.mp3",
-"35 - Red Hot Chili Peppers - Othersong.mp3",
 "44 - Red Hot Chili Peppers - Pink as Floyd.mp3",
 
-/* ===== LINKIN PARK ===== */
+/* LINKIN PARK */
 "07 - Linkin Park - What I've Done.mp3",
 "13 - Linkin Park - Bleed It Out.mp3",
 "15 - Linkin Park - Given Up.mp3",
-"17 - JAY-Z - Numb - Encore.mp3",
 "29 - Linkin Park - In Pieces.mp3",
 "31 - Linkin Park - New Divide.mp3",
 "33 - Linkin Park - Valentine's Day.mp3",
 "36 - Linkin Park - Hands Held High.mp3",
 
-/* ===== AVENGED SEVENFOLD ===== */
+/* A7X */
 "04 - Avenged Sevenfold - Buried Alive.mp3",
 "10 - Avenged Sevenfold - Unholy Confessions.mp3",
 "13 - Avenged Sevenfold - Seize the Day.mp3",
 "14 - Avenged Sevenfold - Nobody.mp3",
 "18 - Avenged Sevenfold - Blinded In Chains.mp3",
-"35 - Avenged Sevenfold - 4:00 AM.mp3",
+"35 - Avenged Sevenfold - 4_00 AM.mp3",
 "37 - Avenged Sevenfold - Critical Acclaim.mp3"
 
 ];
@@ -219,44 +211,7 @@ let currentIndex=0;
 let shuffle=false;
 let loop=false;
 
-/* AUDIO CONTEXT */
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-const source=audioCtx.createMediaElementSource(audio);
-
-const sub=audioCtx.createBiquadFilter();
-sub.type="lowshelf";
-sub.frequency.value=60;
-
-const bass=audioCtx.createBiquadFilter();
-bass.type="lowshelf";
-bass.frequency.value=150;
-
-const mid=audioCtx.createBiquadFilter();
-mid.type="peaking";
-mid.frequency.value=1000;
-mid.Q.value=1;
-
-const treble=audioCtx.createBiquadFilter();
-treble.type="highshelf";
-treble.frequency.value=4000;
-
-const analyser=audioCtx.createAnalyser();
-analyser.fftSize=256;
-
-source.connect(sub)
-.connect(bass)
-.connect(mid)
-.connect(treble)
-.connect(analyser)
-.connect(audioCtx.destination);
-
-/* EQ */
-document.getElementById("sub").oninput=e=>sub.gain.value=e.target.value;
-document.getElementById("bass").oninput=e=>bass.gain.value=e.target.value;
-document.getElementById("mid").oninput=e=>mid.gain.value=e.target.value;
-document.getElementById("treble").oninput=e=>treble.gain.value=e.target.value;
-
-/* PLAYLIST */
+/* BUILD PLAYLIST */
 songs.forEach((song,index)=>{
 let div=document.createElement("div");
 div.textContent=song;
@@ -272,18 +227,17 @@ el.classList.toggle("active",i===currentIndex);
 
 function loadSong(i){
 currentIndex=i;
-audio.src=songs[i];
+audio.src=encodeURI(songs[i]);
 audio.play();
-audioCtx.resume();
 playBtn.textContent="⏸";
 nowPlaying.textContent="Now Playing: "+songs[i];
 highlight();
+updateMediaSession();
 }
 
 function togglePlay(){
 if(audio.paused){
 audio.play();
-audioCtx.resume();
 playBtn.textContent="⏸";
 }else{
 audio.pause();
@@ -305,16 +259,10 @@ currentIndex=(currentIndex-1+songs.length)%songs.length;
 loadSong(currentIndex);
 }
 
-function toggleShuffle(){
-shuffle=!shuffle;
-alert("Shuffle: "+(shuffle?"ON":"OFF"));
-}
+function toggleShuffle(){ shuffle=!shuffle; }
+function toggleLoop(){ loop=!loop; audio.loop=loop; }
 
-function toggleLoop(){
-loop=!loop;
-audio.loop=loop;
-alert("Loop: "+(loop?"ON":"OFF"));
-}
+audio.addEventListener("ended",()=>{ if(!loop) nextSong(); });
 
 audio.addEventListener("timeupdate",()=>{
 progress.value=audio.currentTime;
@@ -326,9 +274,7 @@ progress.max=audio.duration;
 duration.textContent=formatTime(audio.duration);
 });
 
-progress.addEventListener("input",()=>{
-audio.currentTime=progress.value;
-});
+progress.addEventListener("input",()=>{ audio.currentTime=progress.value; });
 
 function formatTime(t){
 let m=Math.floor(t/60);
@@ -346,11 +292,38 @@ let eq=document.getElementById("eqPanel");
 eq.style.display=eq.style.display==="block"?"none":"block";
 }
 
+/* MEDIA SESSION */
+if ('mediaSession' in navigator) {
+function updateMediaSession(){
+navigator.mediaSession.metadata=new MediaMetadata({
+title:songs[currentIndex],
+artist:"BhenzFlix Music",
+album:"Custom Player",
+artwork:[{
+src:"file_00000000e5647209a6f0034bc9238384.png",
+sizes:"512x512",
+type:"image/png"
+}]
+});
+}
+navigator.mediaSession.setActionHandler('play',()=>audio.play());
+navigator.mediaSession.setActionHandler('pause',()=>audio.pause());
+navigator.mediaSession.setActionHandler('previoustrack',()=>prevSong());
+navigator.mediaSession.setActionHandler('nexttrack',()=>nextSong());
+}
+
 /* VISUALIZER */
 const canvas=document.getElementById("visualizer");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=120;
+
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+const source=audioCtx.createMediaElementSource(audio);
+const analyser=audioCtx.createAnalyser();
+analyser.fftSize=256;
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
 
 const bufferLength=analyser.frequencyBinCount;
 const dataArray=new Uint8Array(bufferLength);
@@ -370,10 +343,8 @@ x+=barWidth+1;
 }
 draw();
 
-/* START */
 loadSong(0);
 
 </script>
-
 </body>
 </html>
